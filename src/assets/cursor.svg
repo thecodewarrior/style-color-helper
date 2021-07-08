@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+  <defs>
+    <bx:guide x="7.5" y="-3.423" angle="0"/>
+    <bx:guide x="-5.265" y="7.5" angle="90"/>
+    <bx:guide x="-7.322" y="2" angle="90"/>
+    <bx:guide x="2" y="-3.698" angle="0"/>
+    <bx:guide x="13" y="-2.173" angle="0"/>
+    <bx:guide x="-6.257" y="13" angle="90"/>
+  </defs>
+  <path style="fill: none; stroke-width: 3px; stroke: rgb(26, 28, 49);" d="M 2 7.5 L 7.5 2 L 13 7.5 L 7.5 13 L 2 7.5 Z"/>
+  <path style="fill: none; stroke: rgb(15, 177, 173); stroke-width: 2px;" d="M 2 7.5 L 7.5 2 L 13 7.5 L 7.5 13 L 2 7.5 Z"/>
+</svg>
