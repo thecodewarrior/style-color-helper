@@ -1,7 +1,22 @@
 import chroma, {Color} from "chroma-js";
 
 export interface ColorFilter {
-  filter(color: Color): Color;
+  apply(color: Color): Color;
+}
+
+export class CompoundFilter implements ColorFilter {
+  constructor(
+      public filters: ColorFilter[] = []
+  ) {
+  }
+
+  apply(color: Color): Color {
+    let filtered = color
+    for(let filter of this.filters) {
+      filtered = filter.apply(filtered)
+    }
+    return filtered
+  }
 }
 
 export class PosterizeFilter implements ColorFilter {
@@ -10,11 +25,7 @@ export class PosterizeFilter implements ColorFilter {
   ) {
   }
 
-  private get stepSize() {
-    return 256 / this.levels
-  }
-
-  filter(color: Color): Color {
+  apply(color: Color): Color {
     const rgb = color.rgb()
     return chroma.rgb(
         this.filterComponent(rgb[0]),

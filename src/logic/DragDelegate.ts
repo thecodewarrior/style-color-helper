@@ -1,6 +1,7 @@
 
 export interface DragDelegate {
   readonly dragElement: HTMLElement
+  readonly fractionalDrag?: boolean
   drag(x: number, y: number): void
   dragEnd(x: number, y: number): void
 }
@@ -34,9 +35,12 @@ export const DragHandler = new (class {
 
   private relative(e: MouseEvent, delegate: DragDelegate): {x: number, y: number} {
     const rect = delegate.dragElement.getBoundingClientRect()
-    return {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
+    let x = e.clientX - rect.left
+    let y = e.clientY - rect.top
+    if(delegate.fractionalDrag) {
+      x /= rect.width
+      y /= rect.height
     }
+    return {x, y}
   }
 })

@@ -22,10 +22,13 @@ export const DragHandler = new (class {
     }
     relative(e, delegate) {
         const rect = delegate.dragElement.getBoundingClientRect();
-        return {
-            x: e.clientX - rect.left,
-            y: e.clientY - rect.top,
-        };
+        let x = e.clientX - rect.left;
+        let y = e.clientY - rect.top;
+        if (delegate.fractionalDrag) {
+            x /= rect.width;
+            y /= rect.height;
+        }
+        return { x, y };
     }
 });
 //# sourceMappingURL=DragDelegate.js.map
