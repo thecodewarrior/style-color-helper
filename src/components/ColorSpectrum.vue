@@ -8,7 +8,9 @@ import {ColorFilter} from "@/logic/ColorFilter";
 import chroma, {Color} from "chroma-js";
 import {PropType, resolveComponent} from "vue";
 import {clamp} from "@/utils";
-let styleRenderer = import("style-renderer")
+import ShaderManager, {ProgramInfo} from "@/logic/ShaderManager";
+import vert from "@/assets/shaders/base.vert";
+import frag from "@/assets/shaders/base.frag";
 
 export type SpectrumComponent = number | "x" | "-x" | "y" | "-y"
 type Margins = [number] | [number, number] | [number, number, number, number]
@@ -48,6 +50,12 @@ export default class ColorSpectrum extends Vue {
   height!: number
   filter!: ColorFilter
 
+  context!: WebGLRenderingContext
+  shaders!: ShaderManager
+  program!: ProgramInfo
+  positionBuffer!: WebGLBuffer
+  colorBuffer!: WebGLBuffer
+
   colorChanged(newValue: any) {
     if (!(newValue instanceof String))
       this.updateCanvas()
@@ -59,51 +67,123 @@ export default class ColorSpectrum extends Vue {
 
   mounted() {
     console.log("wtf")
+    this.initializeContext()
     this.updateCanvas()
   }
 
+  initializeContext() {
+    const canvas = this.$refs['spectrum'] as HTMLCanvasElement
+    this.context = canvas.getContext('webgl')!
+    this.shaders = new ShaderManager(this.context);
+
+    this.program = this.shaders.initShaderProgram(vert, frag)
+
+    const gl = this.context
+    {
+      this.positionBuffer = gl.createBuffer()!;
+      // Select the positionBuffer as the one to apply buffer
+      // operations to from here out.
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
+
+      const positions = [
+        -1.0, 1.0,
+        1.0, 1.0,
+        -1.0, -1.0,
+        1.0, -1.0,
+      ];
+
+      gl.bufferData(gl.ARRAY_BUFFER,
+          new Float32Array(positions),
+          gl.STATIC_DRAW);
+    }
+
+    {
+      this.colorBuffer = gl.createBuffer()!;
+      // Select the positionBuffer as the one to apply buffer
+      // operations to from here out.
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
+
+      const colors = [
+        0, 1, 1, // top-left
+        1, 1, 1, // top-right
+        0, 1, 0, // bottom-left
+        1, 1, 0, // bottom-right
+      ];
+
+      gl.bufferData(gl.ARRAY_BUFFER,
+          new Float32Array(colors),
+          gl.DYNAMIC_DRAW);
+    }
+  }
+
   updateCanvas() {
-    styleRenderer.then((renderer) => {
-      const canvas = this.$refs['spectrum'] as HTMLCanvasElement
-      const ctx = canvas.getContext('2d')!
+    let gl = this.context
 
-      let xAxis = renderer.Component.None
-      let yAxis = renderer.Component.None
-      let invertX = false
-      let invertY = false
+    gl.clearColor(Math.random(), Math.random(), Math.random(), 1)
+    gl.clearDepth(1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-      function resolveComponent(component: SpectrumComponent, renderComponent: number): number {
-        switch (component) {
-          case "x":
-            xAxis = renderComponent
-            invertX = false
-            break;
-          case "-x":
-            xAxis = renderComponent
-            invertX = true
-            break;
-          case "y":
-            yAxis = renderComponent
-            invertY = false
-            break;
-          case "-y":
-            yAxis = renderComponent
-            invertY = true
-            break;
-          default:
-            return component
-        }
-        return 0
-      }
+    // Tell WebGL how to pull out the positions from the position
+    // buffer into the vertexPosition attribute.
+    {
+      const numComponents = 2;  // pull out 2 values per iteration
+      const type = gl.FLOAT;    // the data in the buffer is 32bit floats
+      const normalize = false;  // don't normalize
+      const stride = 0;         // how many bytes to get from one set of values to the next
+                                // 0 = use type and numComponents above
+      const offset = 0;         // how many bytes inside the buffer to start from
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
+      gl.vertexAttribPointer(
+          this.program.attributes.position,
+          numComponents,
+          type,
+          normalize,
+          stride,
+          offset);
+      gl.enableVertexAttribArray(this.program.attributes.position);
+    }
 
-      let hue = resolveComponent(this.hue, renderer.Component.Hue)
-      let saturation = resolveComponent(this.saturation, renderer.Component.Saturation)
-      let lightness = resolveComponent(this.lightness, renderer.Component.Lightness)
+    {
+      const numComponents = 3;  // pull out 2 values per iteration
+      const type = gl.FLOAT;    // the data in the buffer is 32bit floats
+      const normalize = false;  // don't normalize
+      const stride = 0;         // how many bytes to get from one set of values to the next
+                                // 0 = use type and numComponents above
+      const offset = 0;         // how many bytes inside the buffer to start from
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
+      gl.vertexAttribPointer(
+          this.program.attributes.hsl,
+          numComponents,
+          type,
+          normalize,
+          stride,
+          offset);
+      gl.enableVertexAttribArray(this.program.attributes.hsl);
+    }
 
-      let data = renderer.render_spectrum(canvas.width, canvas.height, hue / 360, saturation, lightness, xAxis, invertX, yAxis, invertY)
+    // Tell WebGL to use our program when drawing
 
-      ctx.putImageData(new ImageData(data, canvas.width, canvas.height), 0, 0)
-    })
+    gl.useProgram(this.program.program);
+
+    // Set the shader uniforms
+
+    // gl.uniformMatrix4fv(
+    //     programInfo.uniformLocations.projectionMatrix,
+    //     false,
+    //     projectionMatrix);
+    // gl.uniformMatrix4fv(
+    //     programInfo.uniformLocations.modelViewMatrix,
+    //     false,
+    //     modelViewMatrix);
+
+    {
+      const offset = 0;
+      const vertexCount = 4;
+      gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
+    }
+
   }
 }
 </script>

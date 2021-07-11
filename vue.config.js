@@ -1,4 +1,14 @@
 module.exports = {
+  configureWebpack: {
+    module: {
+      rules: [
+        {
+          test: /\.(glsl|vert|frag)$/,
+          use: ['raw-loader']
+        }
+      ],
+    },
+  },
   chainWebpack: config => {
     config.devtool('source-map');
     config.output.devtoolModuleFilenameTemplate(info => {
