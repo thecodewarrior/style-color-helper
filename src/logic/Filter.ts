@@ -1,11 +1,13 @@
 import {vec3, vec4} from "@/logic/math/vec";
 
-export type ParameterType =
-    { type: "float", min?: number, max?: number, default: number } | // number
-    { type: "int", min?: number, max?: number, default: number } | // number
-    { type: "rgb", default: vec3 } | // vec3
-    { type: "rgba", default: vec4 } // vec4
-export type Parameter = number | vec3 | vec4
+export type FloatParameter = { type: "float", min?: number, max?: number, default: number } // number
+export type IntParameter = { type: "int", min?: number, max?: number, default: number } // number
+export type RgbParameter = { type: "rgb", default: vec3 } // vec3
+export type RgbaParameter = { type: "rgba", default: vec4 } // vec4
+
+
+export type Parameter = FloatParameter | IntParameter | RgbParameter | RgbaParameter
+export type ParameterValue = number | vec3 | vec4
 
 /**
  * A filter definition
@@ -25,30 +27,30 @@ export type Filter = {
   /**
    * The list of parameters that should be displayed.
    */
-  parameters: ParameterType[],
+  parameters: Parameter[],
   /**
    * Converts the parameter list as defined in `parameters` into the vectors that should be passed to GLSL. This allows
    * filters to merge multiple parameters into a single vector.
    */
-  vectorize(...params: Parameter[]): vec4[]
+  vectorize(...params: ParameterValue[]): vec4[]
   apply(color: vec3, ...params: vec4[]): vec3
 }
 
 export class ParameterizedFilter {
   readonly id: string
-  readonly parameterTypes: ParameterType[]
   readonly parameters: Parameter[]
+  readonly values: ParameterValue[]
 
   constructor(
-      readonly type: Filter
+      readonly filter: Filter
   ) {
-    this.id = type.id
-    this.parameterTypes = Array.of(...type.parameters)
-    this.parameters = this.parameterTypes.map(it => it.default)
+    this.id = filter.id
+    this.parameters = Array.of(...filter.parameters)
+    this.values = this.parameters.map(it => it.default)
   }
 
   apply(color: vec3): vec3 {
-    return this.type.apply(color, ...this.type.vectorize(...this.parameters))
+    return this.filter.apply(color, ...this.filter.vectorize(...this.values))
   }
 }
 

@@ -13,12 +13,12 @@ export type SpectrumComponent = number | "x" | "-x" | "y" | "-y"
 @Options({
   components: {},
   props: {
-    hue: {type: [String as PropType<SpectrumComponent>, Number as PropType<SpectrumComponent>], required: true},
-    saturation: {type: [String as PropType<SpectrumComponent>, Number as PropType<SpectrumComponent>], required: true},
-    lightness: {type: [String as PropType<SpectrumComponent>, Number as PropType<SpectrumComponent>], required: true},
-    width: {type: Number, required: true},
-    height: {type: Number, required: true},
-    filters: {type: Array as PropType<FilterSet>, required: true},
+    hue: {parameter: [String as PropType<SpectrumComponent>, Number as PropType<SpectrumComponent>], required: true},
+    saturation: {parameter: [String as PropType<SpectrumComponent>, Number as PropType<SpectrumComponent>], required: true},
+    lightness: {parameter: [String as PropType<SpectrumComponent>, Number as PropType<SpectrumComponent>], required: true},
+    width: {parameter: Number, required: true},
+    height: {parameter: Number, required: true},
+    filters: {parameter: Array as PropType<FilterSet>, required: true},
   },
   emits: [
     'update:h',
@@ -70,7 +70,7 @@ export default class ColorSpectrum extends Vue {
   get uniformParameters(): number[] {
     let parameters = []
     for(let filter of this.filters) {
-      let vectors = filter.type.vectorize(...filter.parameters)
+      let vectors = filter.filter.vectorize(...filter.values)
       for(let vector of vectors) {
         parameters.push(vector.r)
         parameters.push(vector.g)

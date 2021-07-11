@@ -47,7 +47,7 @@ import {vec3} from "@/logic/math/vec";
     ColorPickerSpectrum
   },
   props: {
-    filters: {type: Array as PropType<FilterSet>, required: true}
+    filters: {parameter: Array as PropType<FilterSet>, required: true}
   },
   watch: {
   },

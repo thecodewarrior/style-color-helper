@@ -5,7 +5,7 @@ export const filterTypes = [
         name: "Posterize",
         glsl: "color = floor(color * $0.x) / $0.y;",
         parameters: [
-            { type: "float", min: 1, default: 5 }
+            { type: "float", min: 2, default: 5 }
         ],
         vectorize(factor) {
             return [new vec4(factor, factor - 1, 0, 0)];

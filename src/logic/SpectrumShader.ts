@@ -16,8 +16,22 @@ export default class SpectrumShader {
     return this._filterIds
   }
   public set filterIds(value) {
-    this._filterIds = value
-    this.pendingRebuild = true
+    let modified = false
+    if(value.length === this._filterIds.length) {
+      for (let i = 0; i < value.length; i++) {
+        if(value[i] != this._filterIds[i]) {
+          modified = true
+          break
+        }
+      }
+    } else {
+      modified = true
+    }
+
+    if(modified) {
+      this._filterIds = value
+      this.pendingRebuild = true
+    }
   }
 
   public rebuildIfNeeded() {
@@ -26,6 +40,7 @@ export default class SpectrumShader {
   }
 
   private rebuildShader(filterIds: string[]) {
+    this.pendingRebuild = false
     const vertex = `precision lowp float;
 
 attribute vec4 position;

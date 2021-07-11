@@ -1,7 +1,10 @@
 <template>
   <div class="hello">
     <div class="area">
-      <color-picker :filters="filters"></color-picker>
+      <color-picker :filters="filters"/>
+      <div class="filter-options">
+        <filter-editor v-for="(filter, i) in filters" :key="i" :filter="filter"/>
+      </div>
     </div>
   </div>
 </template>
@@ -11,9 +14,10 @@ import { Options, Vue } from 'vue-class-component';
 import ColorPicker from "@/components/ColorPicker.vue";
 import {Filter, FilterSet, ParameterizedFilter} from "@/logic/Filter";
 import {filterRegistry} from "@/logic/Filters";
+import FilterEditor from "@/components/FilterEditor.vue";
 
 @Options({
-  components: {ColorPicker},
+  components: {FilterEditor, ColorPicker},
   props: {
     msg: String
   }
@@ -28,16 +32,7 @@ export default class HelloWorld extends Vue {
 
   mounted() {
     let filter = this.addFilter(new ParameterizedFilter(filterRegistry["posterize"]))
-    filter.parameters[0] = 5
-    setTimeout(() => {
-      const start = performance.now() / 1000
-      setInterval(() => {
-        let now = performance.now() / 1000
-        let delta = now - start
-        let sin = Math.sin(delta / 2) / 2 + 0.5
-        filter.parameters.splice(0, 1, 1 + sin * 5)
-      }, 25)
-    }, 1500)
+    filter.values[0] = 5
   }
 }
 </script>
@@ -47,5 +42,8 @@ export default class HelloWorld extends Vue {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+.filter-options {
+
 }
 </style>
