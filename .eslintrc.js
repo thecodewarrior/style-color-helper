@@ -19,6 +19,7 @@ module.exports = {
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/no-inferrable-types': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/no-extra-semi': 'off', // dies when processing rust output
     'prefer-const': 'off',
   }
 }

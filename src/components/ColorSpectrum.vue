@@ -8,6 +8,7 @@ import {ColorFilter} from "@/logic/ColorFilter";
 import chroma, {Color} from "chroma-js";
 import {PropType, resolveComponent} from "vue";
 import {clamp} from "@/utils";
+let styleRenderer = import("style-renderer")
 
 export type SpectrumComponent = number | "x" | "-x" | "y" | "-y"
 type Margins = [number] | [number, number] | [number, number, number, number]
@@ -57,111 +58,52 @@ export default class ColorSpectrum extends Vue {
   }
 
   mounted() {
+    console.log("wtf")
     this.updateCanvas()
   }
 
   updateCanvas() {
-    const canvas = this.$refs['spectrum'] as HTMLCanvasElement
-    const ctx = canvas.getContext('2d')!
-    const image = ctx.createImageData(canvas.width, canvas.height)
-    const data = image.data
+    styleRenderer.then((renderer) => {
+      const canvas = this.$refs['spectrum'] as HTMLCanvasElement
+      const ctx = canvas.getContext('2d')!
 
-    const width = canvas.width
-    const height = canvas.height
-    const stride = width * 4
+      let xAxis = renderer.Component.None
+      let yAxis = renderer.Component.None
+      let invertX = false
+      let invertY = false
 
-    for (let x = 0; x < width; x++) {
-      for (let y = 0; y < height; y++) {
-        let color = this.getColor(x, y)
-        const rgb = this.filter.apply(color).rgb()
-
-        const i = y * stride + x * 4
-        data[i] = rgb[0]     // red
-        data[i + 1] = rgb[1] // green
-        data[i + 2] = rgb[2] // blue
-        data[i + 3] = 255    // alpha
+      function resolveComponent(component: SpectrumComponent, renderComponent: number): number {
+        switch (component) {
+          case "x":
+            xAxis = renderComponent
+            invertX = false
+            break;
+          case "-x":
+            xAxis = renderComponent
+            invertX = true
+            break;
+          case "y":
+            yAxis = renderComponent
+            invertY = false
+            break;
+          case "-y":
+            yAxis = renderComponent
+            invertY = true
+            break;
+          default:
+            return component
+        }
+        return 0
       }
-    }
 
-    ctx.putImageData(image, 0, 0)
-  }
+      let hue = resolveComponent(this.hue, renderer.Component.Hue)
+      let saturation = resolveComponent(this.saturation, renderer.Component.Saturation)
+      let lightness = resolveComponent(this.lightness, renderer.Component.Lightness)
 
-  /**
-   * Gets the 0–1 X coordinate, taking into account margins
-   */
-  private getFractionalX(x: number): number {
-    let leftMargin: number = 0
-    let rightMargin: number = 0
-    switch (this.margin.length) {
-      case 1:
-        leftMargin = this.margin[0]
-        rightMargin = this.margin[0]
-        break;
-      case 2:
-        leftMargin = this.margin[1]
-        rightMargin = this.margin[1]
-        break;
-      case 4:
-        rightMargin = this.margin[1]
-        leftMargin = this.margin[3]
-        break;
-    }
+      let data = renderer.render_spectrum(canvas.width, canvas.height, hue / 360, saturation, lightness, xAxis, invertX, yAxis, invertY)
 
-    let innerWidth = this.width - leftMargin - rightMargin
-    return clamp(0, (x - leftMargin) / innerWidth, 1)
-  }
-
-  /**
-   * Gets the 0–1 Y coordinate, taking into account margins
-   */
-  private getFractionalY(y: number): number {
-    let topMargin: number = 0
-    let bottomMargin: number = 0
-    switch (this.margin.length) {
-      case 1:
-      case 2:
-        topMargin = this.margin[0]
-        bottomMargin = this.margin[0]
-        break;
-      case 4:
-        bottomMargin = this.margin[0]
-        topMargin = this.margin[2]
-        break;
-    }
-
-    let innerWidth = this.height - topMargin - bottomMargin
-    return clamp(0, (y - topMargin) / innerWidth, 1)
-  }
-
-  /**
-   * Gets the resolved color for the given position
-   * @param x the fractional X coordinate
-   * @param y the fractional Y coordinate
-   * @private
-   */
-  private getColor(x: number, y: number): Color {
-    x = this.getFractionalX(x)
-    y = this.getFractionalY(y)
-
-    return chroma.hsl(
-        ColorSpectrum.resolveComponent(x, y, this.hue, 360),
-        ColorSpectrum.resolveComponent(x, y, this.saturation),
-        ColorSpectrum.resolveComponent(x, y, this.lightness),
-    )
-  }
-
-  private static resolveComponent(x: number, y: number, component: SpectrumComponent, multiplier: number = 1): number {
-    switch (component) {
-      case "x":
-        return x * multiplier
-      case "-x":
-        return (1 - x) * multiplier
-      case "y":
-        return y * multiplier
-      case "-y":
-        return (1 - y) * multiplier
-    }
-    return component
+      ctx.putImageData(new ImageData(data, canvas.width, canvas.height), 0, 0)
+    })
   }
 }
 </script>
