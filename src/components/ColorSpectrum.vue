@@ -4,16 +4,11 @@
 
 <script lang="ts">
 import {Options, Vue} from 'vue-class-component';
-import {ColorFilter} from "@/logic/ColorFilter";
-import chroma, {Color} from "chroma-js";
-import {PropType, resolveComponent} from "vue";
-import {clamp} from "@/utils";
-import ShaderManager, {ProgramInfo} from "@/logic/ShaderManager";
-import vert from "@/assets/shaders/base.vert";
-import frag from "@/assets/shaders/base.frag";
+import {FilterSet} from "@/logic/Filter";
+import {PropType} from "vue";
+import SpectrumShader from "../logic/SpectrumShader";
 
 export type SpectrumComponent = number | "x" | "-x" | "y" | "-y"
-type Margins = [number] | [number, number] | [number, number, number, number]
 
 @Options({
   components: {},
@@ -23,8 +18,7 @@ type Margins = [number] | [number, number] | [number, number, number, number]
     lightness: {type: [String as PropType<SpectrumComponent>, Number as PropType<SpectrumComponent>], required: true},
     width: {type: Number, required: true},
     height: {type: Number, required: true},
-    filter: {type: Object as PropType<ColorFilter>, required: true},
-    margin: {type: Object as PropType<Margins>, required: false, default: [0]},
+    filters: {type: Array as PropType<FilterSet>, required: true},
   },
   emits: [
     'update:h',
@@ -32,37 +26,63 @@ type Margins = [number] | [number, number] | [number, number, number, number]
     'update:l',
   ],
   watch: {
-    'hue': 'colorChanged',
-    'saturation': 'colorChanged',
-    'lightness': 'colorChanged',
-    'width': 'geometryChanged',
-    'height': 'geometryChanged',
-    'filter': 'geometryChanged',
-    'margin': 'geometryChanged',
+    'hue': 'markDirty',
+    'saturation': 'markDirty',
+    'lightness': 'markDirty',
+    'width': 'markDirty',
+    'height': 'markDirty',
+    'filterIds': {handler: 'filterIdsChanged', deep: true},
+    'uniformParameters': {handler: 'parametersChanged', deep: true}
   }
 })
 export default class ColorSpectrum extends Vue {
   hue!: SpectrumComponent
   saturation!: SpectrumComponent
   lightness!: SpectrumComponent
-  margin!: Margins
-  width!: number
-  height!: number
-  filter!: ColorFilter
+  filters!: FilterSet
 
   context!: WebGLRenderingContext
-  shaders!: ShaderManager
-  program!: ProgramInfo
+  shader!: SpectrumShader
   positionBuffer!: WebGLBuffer
   colorBuffer!: WebGLBuffer
 
-  colorChanged(newValue: any) {
-    if (!(newValue instanceof String))
-      this.updateCanvas()
+  needsUpdate: boolean = false
+
+  markDirty() {
+    if(!this.needsUpdate) {
+      this.$nextTick(() => {
+        this.updateCanvas()
+        this.needsUpdate = false
+      });
+    }
+    this.needsUpdate = true
   }
 
-  geometryChanged() {
-    this.updateCanvas()
+  get filterIds(): string[] {
+    return this.filters.map(it => it.id)
+  }
+
+  filterIdsChanged() {
+    this.shader.filterIds = this.filterIds
+    this.markDirty()
+  }
+
+  get uniformParameters(): number[] {
+    let parameters = []
+    for(let filter of this.filters) {
+      let vectors = filter.type.vectorize(...filter.parameters)
+      for(let vector of vectors) {
+        parameters.push(vector.r)
+        parameters.push(vector.g)
+        parameters.push(vector.b)
+        parameters.push(vector.a)
+      }
+    }
+    return parameters
+  }
+
+  parametersChanged() {
+    this.markDirty()
   }
 
   mounted() {
@@ -74,9 +94,8 @@ export default class ColorSpectrum extends Vue {
   initializeContext() {
     const canvas = this.$refs['spectrum'] as HTMLCanvasElement
     this.context = canvas.getContext('webgl')!
-    this.shaders = new ShaderManager(this.context);
-
-    this.program = this.shaders.initShaderProgram(vert, frag)
+    this.shader = new SpectrumShader(this.context);
+    this.shader.filterIds = this.filterIds
 
     const gl = this.context
     {
@@ -155,6 +174,7 @@ export default class ColorSpectrum extends Vue {
   }
 
   updateCanvas() {
+    this.shader.rebuildIfNeeded()
     let gl = this.context
 
     gl.clearColor(Math.random(), Math.random(), Math.random(), 1)
@@ -172,13 +192,13 @@ export default class ColorSpectrum extends Vue {
       const offset = 0;         // how many bytes inside the buffer to start from
       gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
       gl.vertexAttribPointer(
-          this.program.attributes.position,
+          this.shader.positionAttribute,
           numComponents,
           type,
           normalize,
           stride,
           offset);
-      gl.enableVertexAttribArray(this.program.attributes.position);
+      gl.enableVertexAttribArray(this.shader.positionAttribute);
     }
 
     {
@@ -190,22 +210,24 @@ export default class ColorSpectrum extends Vue {
       const offset = 0;         // how many bytes inside the buffer to start from
       gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
       gl.vertexAttribPointer(
-          this.program.attributes.hsl,
+          this.shader.hslAttribute,
           numComponents,
           type,
           normalize,
           stride,
           offset);
-      gl.enableVertexAttribArray(this.program.attributes.hsl);
+      gl.enableVertexAttribArray(this.shader.hslAttribute);
     }
 
     // Tell WebGL to use our program when drawing
 
-    gl.useProgram(this.program.program);
+    gl.useProgram(this.shader.program);
 
     this.uploadComputedColors()
 
     // Set the shader uniforms
+
+    gl.uniform4fv(this.shader.paramUniform, new Float32Array(this.uniformParameters))
 
     // gl.uniformMatrix4fv(
     //     programInfo.uniformLocations.projectionMatrix,

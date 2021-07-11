@@ -7,7 +7,7 @@
         :lightness="lightness"
         :width="renderWidth"
         :height="renderHeight"
-        :filter="filter"
+        :filters="filters"
     ></spectrum>
     <div class="cursor" :style="cursorStyle"></div>
   </div>
@@ -15,8 +15,7 @@
 
 <script lang="ts">
 import {Options, Vue} from 'vue-class-component';
-import {ColorFilter} from "@/logic/ColorFilter";
-import chroma from "chroma-js";
+import {FilterSet} from "@/logic/Filter";
 import {PropType} from "vue";
 import {DragDelegate, DragHandler} from "@/logic/DragDelegate";
 import ColorSpectrum, {SpectrumComponent} from "@/components/ColorSpectrum.vue";
@@ -34,7 +33,7 @@ import {clamp} from "@/utils";
     y: {type: Number, required: false, default: 0.5},
     renderWidth: {type: Number, required: true},
     renderHeight: {type: Number, required: true},
-    filter: {type: Object as PropType<ColorFilter>, required: true},
+    filters: {type: Array as PropType<FilterSet>, required: true},
   },
   emits: [
     'update:x',
@@ -43,14 +42,8 @@ import {clamp} from "@/utils";
   watch: {}
 })
 export default class ColorPickerSpectrum extends Vue implements DragDelegate {
-  hue!: SpectrumComponent
-  saturation!: SpectrumComponent
-  lightness!: SpectrumComponent
   x!: number
   y!: number
-  renderWidth!: number
-  renderHeight!: number
-  filter!: ColorFilter
 
   get cursorStyle() {
     return {
