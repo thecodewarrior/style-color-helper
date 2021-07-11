@@ -27,7 +27,7 @@
         style="width: 300px; height: 120px;"
         hue="x" :saturation="saturation" lightness="-y"
         v-model:x="hueAxis" v-model:y="inverseLightness"
-        :render-width="300" :render-height="120"
+        :render-width="mainRenderWidth" :render-height="mainRenderHeight"
         :filter="filter"
     />
     <div class="swatch" :style="{'background-color': finalColor, 'width': '300px'}">{{ finalColor }}</div>
@@ -44,6 +44,9 @@ import ColorPickerSpectrum from "@/components/ColorPickerSpectrum.vue";
   components: {
     ColorPickerSpectrum
   },
+  watch: {
+    'saturation': 'saturationChanged'
+  }
 })
 export default class ColorPicker extends Vue {
   hue = 30
@@ -52,6 +55,29 @@ export default class ColorPicker extends Vue {
   filter: CompoundFilter = new CompoundFilter([
     new PosterizeFilter(5)
   ])
+
+  saturationTimer = -1
+  fullRenderWidth = 300
+  fullRenderHeight = 120
+  partialRenderWidth = 100
+  partialRenderHeight = 40
+  usePartialRender = false
+
+  get mainRenderHeight(): number {
+    return this.usePartialRender ? this.partialRenderHeight : this.fullRenderHeight
+  }
+
+  get mainRenderWidth(): number {
+    return this.usePartialRender ? this.partialRenderWidth : this.fullRenderWidth
+  }
+
+  saturationChanged() {
+    clearTimeout(this.saturationTimer)
+    this.usePartialRender = true
+    this.saturationTimer = setTimeout(() => {
+      this.usePartialRender = false
+    }, 100)
+  }
 
   get finalColor() {
     let color = this.filter.apply(chroma.hsl(this.hue, this.saturation, this.lightness))
