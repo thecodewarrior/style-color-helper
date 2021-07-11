@@ -87,10 +87,10 @@ export default class ColorSpectrum extends Vue {
       gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
 
       const positions = [
-        -1.0, 1.0,
-        1.0, 1.0,
-        -1.0, -1.0,
-        1.0, -1.0,
+        -1.0, 1.0,  // top-left
+        1.0, 1.0,   // top-right
+        -1.0, -1.0, // bottom-left
+        1.0, -1.0,  // bottom-right
       ];
 
       gl.bufferData(gl.ARRAY_BUFFER,
@@ -100,22 +100,58 @@ export default class ColorSpectrum extends Vue {
 
     {
       this.colorBuffer = gl.createBuffer()!;
-      // Select the positionBuffer as the one to apply buffer
-      // operations to from here out.
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
-
-      const colors = [
-        0, 1, 1, // top-left
-        1, 1, 1, // top-right
-        0, 1, 0, // bottom-left
-        1, 1, 0, // bottom-right
-      ];
-
-      gl.bufferData(gl.ARRAY_BUFFER,
-          new Float32Array(colors),
-          gl.DYNAMIC_DRAW);
+      this.uploadColors(
+          [0, 1, 1], // top-left
+          [1, 1, 1], // top-right
+          [0, 1, 0], // bottom-left
+          [1, 1, 0], // bottom-right
+      )
     }
+  }
+
+  uploadColors(topLeft: number[], topRight: number[], bottomLeft: number[], bottomRight: number[]) {
+    const gl = this.context
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
+
+    gl.bufferData(gl.ARRAY_BUFFER,
+        new Float32Array(topLeft.concat(topRight, bottomLeft, bottomRight)),
+        gl.DYNAMIC_DRAW);
+  }
+
+  uploadComputedColors() {
+    let topLeft = [0, 0, 0]
+    let topRight = [0, 0, 0]
+    let bottomLeft = [0, 0, 0]
+    let bottomRight = [0, 0, 0]
+
+    function setup(index: number, component: SpectrumComponent, factor: number = 1) {
+      switch(component) {
+        case "x":
+          bottomLeft[index] = topLeft[index] = 0;
+          bottomRight[index] = topRight[index] = 1;
+          return;
+        case "-x":
+          bottomLeft[index] = topLeft[index] = 1;
+          bottomRight[index] = topRight[index] = 0;
+          return;
+        case "y":
+          topLeft[index] = topRight[index] = 0;
+          bottomLeft[index] = bottomRight[index] = 1;
+          return;
+        case "-y":
+          topLeft[index] = topRight[index] = 1;
+          bottomLeft[index] = bottomRight[index] = 0;
+          return;
+      }
+      bottomLeft[index] = topLeft[index] = bottomRight[index] = topRight[index] = component / factor
+    }
+
+    setup(0, this.hue, 360)
+    setup(1, this.saturation)
+    setup(2, this.lightness)
+
+    this.uploadColors(topLeft, topRight, bottomLeft, bottomRight)
   }
 
   updateCanvas() {
@@ -166,6 +202,8 @@ export default class ColorSpectrum extends Vue {
     // Tell WebGL to use our program when drawing
 
     gl.useProgram(this.program.program);
+
+    this.uploadComputedColors()
 
     // Set the shader uniforms
 
