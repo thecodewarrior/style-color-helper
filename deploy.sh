@@ -10,6 +10,6 @@ git init
 git add -A
 git commit -m 'deploy'
 
-git push -f git@github.com:thecodewarrior/style-color-helper.git main:gh-pages
+git push -f git@github.com:thecodewarrior/style-color-helper.git HEAD:gh-pages
 
 cd -
