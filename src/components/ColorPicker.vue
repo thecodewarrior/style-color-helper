@@ -1,7 +1,5 @@
 <template>
   <div class="color-picker">
-    <!--    <color-picker-handle label="H" :min="0" :max="360" v-model:component="h" :h="null" :s="s" :l="l" :filters="filters"></color-picker-handle>-->
-
     <color-picker-spectrum
         style="width: 300px; height: 20px; margin-bottom: 10px"
         hue="x" :saturation="saturation" :lightness="lightness"

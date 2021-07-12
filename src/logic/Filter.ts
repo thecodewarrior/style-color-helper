@@ -1,9 +1,9 @@
 import {vec3, vec4} from "@/logic/math/vec";
 
-export type FloatParameter = { type: "float", min?: number, max?: number, default: number } // number
-export type IntParameter = { type: "int", min?: number, max?: number, default: number } // number
-export type RgbParameter = { type: "rgb", default: vec3 } // vec3
-export type RgbaParameter = { type: "rgba", default: vec4 } // vec4
+export type FloatParameter = { name: string, type: "float", min?: number, max?: number, default: number } // number
+export type IntParameter   = { name: string, type: "int", min?: number, max?: number, default: number } // number
+export type RgbParameter   = { name: string, type: "rgb", default: vec3 } // vec3
+export type RgbaParameter  = { name: string, type: "rgba", default: vec4 } // vec4
 
 
 export type Parameter = FloatParameter | IntParameter | RgbParameter | RgbaParameter

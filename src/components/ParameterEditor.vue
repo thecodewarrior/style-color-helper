@@ -1,5 +1,6 @@
 <template>
   <div class="parameter-editor">
+    <div class="label">{{parameter.name}}</div>
     <template v-if="parameter.type === 'float'">
       <input type="number" :min="floatParameter.min" :max="floatParameter.max" v-model="state"/>
     </template>
@@ -9,17 +10,12 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import ColorPicker from "@/components/ColorPicker.vue";
 import {
-  Filter,
-  FilterSet,
   ParameterValue,
-  ParameterizedFilter,
   Parameter,
   FloatParameter,
   IntParameter, RgbaParameter, RgbParameter
 } from "@/logic/Filter";
-import {filterRegistry} from "@/logic/Filters";
 import {PropType} from "vue";
 import {vec3, vec4} from "@/logic/math/vec";
 
@@ -73,5 +69,8 @@ export default class ParameterEditor extends Vue {
   display: flex;
   flex-direction: row;
   align-items: center;
+}
+.label {
+  flex-grow: 1;
 }
 </style>

@@ -29,7 +29,15 @@ export default class FilterEditor extends Vue {
 <style scoped>
 .filter-editor {
   display: flex;
-  flex-direction: row;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.filter-name {
+  align-self: start;
+}
+
+.filter-control {
+  margin-left: 30px;
 }
 </style>

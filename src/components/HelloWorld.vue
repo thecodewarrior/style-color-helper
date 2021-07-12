@@ -40,10 +40,10 @@ export default class HelloWorld extends Vue {
 <style scoped>
 .area {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;
+  align-items: start;
 }
 .filter-options {
-
+  margin-left: 15px;
 }
 </style>

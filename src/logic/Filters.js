@@ -5,7 +5,7 @@ export const filterTypes = [
         name: "Posterize",
         glsl: "color = floor(color * $0.x) / $0.y;",
         parameters: [
-            { type: "float", min: 2, default: 5 }
+            { name: "Levels", type: "float", min: 2, default: 5 }
         ],
         vectorize(factor) {
             return [new vec4(factor, factor - 1, 0, 0)];
@@ -19,7 +19,7 @@ export const filterTypes = [
         name: "Blend Normal",
         glsl: "color = $0.rgb * $0.a + color * (1. - $0.a);",
         parameters: [
-            { type: "rgba", default: new vec4(1, 0, 0, 1) }
+            { name: "Color", type: "rgba", default: new vec4(1, 0, 0, 1) }
         ],
         vectorize(color) {
             return [color];
