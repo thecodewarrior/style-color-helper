@@ -1,4 +1,7 @@
 module.exports = {
+  publicPath: process.env.NODE_ENV === 'production'
+      ? '/style-color-helper/'
+      : '/',
   chainWebpack: config => {
     config.devtool('source-map');
 
