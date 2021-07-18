@@ -2,83 +2,69 @@
   <div class="color-picker">
     <color-picker-spectrum
         style="width: 300px; height: 20px; margin-bottom: 10px"
-        hue="x" :saturation="saturation" :lightness="lightness"
+        hue="x" :saturation="model.saturation" :lightness="model.lightness"
         v-model:x="hueAxis"
         :render-width="300" :render-height="1"
-        :filters="filters"
+        :model="model"
     />
     <color-picker-spectrum
         style="width: 300px; height: 20px; margin-bottom: 10px"
-        :hue="hue" saturation="x" :lightness="lightness"
-        v-model:x="saturation"
+        :hue="model.hue" saturation="x" :lightness="model.lightness"
+        v-model:x="model.saturation"
         :render-width="300" :render-height="1"
-        :filters="filters"
+        :model="model"
     />
     <color-picker-spectrum
         style="width: 300px; height: 20px; margin-bottom: 10px"
-        :hue="hue" :saturation="saturation" lightness="x"
-        v-model:x="lightness"
+        :hue="model.hue" :saturation="model.saturation" lightness="x"
+        v-model:x="model.lightness"
         :render-width="300" :render-height="1"
-        :filters="filters"
+        :model="model"
     />
     <color-picker-spectrum
         style="width: 300px; height: 120px;"
-        hue="x" :saturation="saturation" lightness="-y"
+        hue="x" :saturation="model.saturation" lightness="-y"
         v-model:x="hueAxis" v-model:y="inverseLightness"
         :render-width="300" :render-height="120"
-        :filters="filters"
+        :model="model"
     />
-    <div class="swatch" :style="{'background-color': finalColor, 'width': '300px'}">{{ finalColor }}</div>
   </div>
 </template>
 
 <script lang="ts">
 import {Options, Vue} from 'vue-class-component';
-import {FilterSet} from "@/logic/Filter";
 import chroma from "chroma-js";
 import ColorPickerSpectrum from "@/components/ColorPickerSpectrum.vue";
-import {PropType} from "vue";
 import {vec3} from "@/logic/math/vec";
+import Model from "@/logic/Model";
 
 @Options({
   components: {
     ColorPickerSpectrum
   },
   props: {
-    filters: {parameter: Array as PropType<FilterSet>, required: true}
+    model: {parameter: Model, required: true}
   },
   watch: {
   },
 })
 export default class ColorPicker extends Vue {
-  filters!: FilterSet
-  hue = 30
-  saturation = 1
-  lightness = 0.75
-
-  get finalColor() {
-    let rgb = chroma.hsl(this.hue, this.saturation, this.lightness).rgb()
-    let color = new vec3(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255)
-    for(let filter of this.filters) {
-      color = filter.apply(color)
-    }
-    return chroma.rgb(color.r * 255, color.g * 255, color.b * 255).hex()
-  }
+  model!: Model
 
   get hueAxis(): number {
-    return this.hue / 360
+    return this.model.hue / 360
   }
 
   set hueAxis(value: number) {
-    this.hue = value * 360
+    this.model.hue = value * 360
   }
 
   get inverseLightness(): number {
-    return 1 - this.lightness
+    return 1 - this.model.lightness
   }
 
   set inverseLightness(value: number) {
-    this.lightness = 1 - value
+    this.model.lightness = 1 - value
   }
 
   updateCanvas() {
@@ -95,9 +81,5 @@ export default class ColorPicker extends Vue {
 .color-picker {
   display: flex;
   flex-direction: column;
-  padding: 20px;
-  background: #1a283d;
-  border: 4px solid #0fb1ad;
-  border-radius: 8px;
 }
 </style>

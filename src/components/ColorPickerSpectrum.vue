@@ -7,7 +7,7 @@
         :lightness="lightness"
         :width="renderWidth"
         :height="renderHeight"
-        :filters="filters"
+        :model="model"
     ></spectrum>
     <div class="cursor" :style="cursorStyle"></div>
   </div>
@@ -20,6 +20,7 @@ import {PropType} from "vue";
 import {DragDelegate, DragHandler} from "@/logic/DragDelegate";
 import ColorSpectrum, {SpectrumComponent} from "@/components/ColorSpectrum.vue";
 import {clamp} from "@/utils";
+import Model from "@/logic/Model";
 
 @Options({
   components: {
@@ -33,7 +34,7 @@ import {clamp} from "@/utils";
     y: {parameter: Number, required: false, default: 0.5},
     renderWidth: {parameter: Number, required: true},
     renderHeight: {parameter: Number, required: true},
-    filters: {parameter: Array as PropType<FilterSet>, required: true},
+    model: {parameter: Model, required: true},
   },
   emits: [
     'update:x',

@@ -7,6 +7,7 @@ import {Options, Vue} from 'vue-class-component';
 import {FilterSet} from "@/logic/Filter";
 import {PropType} from "vue";
 import SpectrumShader from "../logic/SpectrumShader";
+import Model from "@/logic/Model";
 
 export type SpectrumComponent = number | "x" | "-x" | "y" | "-y"
 
@@ -18,7 +19,7 @@ export type SpectrumComponent = number | "x" | "-x" | "y" | "-y"
     lightness: {parameter: [String as PropType<SpectrumComponent>, Number as PropType<SpectrumComponent>], required: true},
     width: {parameter: Number, required: true},
     height: {parameter: Number, required: true},
-    filters: {parameter: Array as PropType<FilterSet>, required: true},
+    model: {parameter: Model, required: true},
   },
   emits: [
     'update:h',
@@ -39,7 +40,7 @@ export default class ColorSpectrum extends Vue {
   hue!: SpectrumComponent
   saturation!: SpectrumComponent
   lightness!: SpectrumComponent
-  filters!: FilterSet
+  model!: Model
 
   context!: WebGLRenderingContext
   shader!: SpectrumShader
@@ -59,7 +60,7 @@ export default class ColorSpectrum extends Vue {
   }
 
   get filterIds(): string[] {
-    return this.filters.map(it => it.id)
+    return this.model.filters.map(it => it.id)
   }
 
   filterIdsChanged() {
@@ -69,7 +70,7 @@ export default class ColorSpectrum extends Vue {
 
   get uniformParameters(): number[] {
     let parameters = []
-    for(let filter of this.filters) {
+    for(let filter of this.model.filters) {
       let vectors = filter.filter.vectorize(...filter.values)
       for(let vector of vectors) {
         parameters.push(vector.r)
