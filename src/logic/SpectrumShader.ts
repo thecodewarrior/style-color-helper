@@ -73,12 +73,15 @@ void main(void) {
         parameterCount = Math.max(parameterCount, index + 1);
         return `_p[${index}]`;
       });
-      return `    { // ${filter.id}\n` + body.split('\n').map(line => `        ${line}\n`).join("") + "    }\n"
+      return `    { // ${filter.id}\n` +
+          body.split('\n').map(line => `        ${line}\n`).join("") +
+          "    }\n" +
+          "    color = clamp(color, 0., 1.);\n"
     }).join("");
 
     return `precision lowp float;
 
-uniform vec4 _p[1];
+uniform vec4 _p[${Math.max(parameterCount, 1)}];
 
 varying vec3 vHsl;
 
@@ -108,7 +111,7 @@ ${body}
     gl.linkProgram(shaderProgram);
 
     if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-      alert('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
+      console.log('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
       gl.deleteProgram(shaderProgram);
       throw 'error linking program';
     }
@@ -135,7 +138,7 @@ ${body}
     // See if it compiled successfully
 
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-      alert('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
+      console.log('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
       gl.deleteShader(shader);
       throw 'error compiling shader';
     }

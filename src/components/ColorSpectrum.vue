@@ -14,12 +14,13 @@ export type SpectrumComponent = number | "x" | "-x" | "y" | "-y"
 @Options({
   components: {},
   props: {
-    hue: {parameter: [String as PropType<SpectrumComponent>, Number as PropType<SpectrumComponent>], required: true},
-    saturation: {parameter: [String as PropType<SpectrumComponent>, Number as PropType<SpectrumComponent>], required: true},
-    lightness: {parameter: [String as PropType<SpectrumComponent>, Number as PropType<SpectrumComponent>], required: true},
-    width: {parameter: Number, required: true},
-    height: {parameter: Number, required: true},
-    model: {parameter: Model, required: true},
+    hue: {type: [String as PropType<SpectrumComponent>, Number as PropType<SpectrumComponent>], required: true},
+    saturation: {type: [String as PropType<SpectrumComponent>, Number as PropType<SpectrumComponent>], required: true},
+    lightness: {type: [String as PropType<SpectrumComponent>, Number as PropType<SpectrumComponent>], required: true},
+    width: {type: Number, required: true},
+    height: {type: Number, required: true},
+    model: {type: Object as PropType<Model>, required: true},
+    hideFilters: {type: Boolean, default: false},
   },
   emits: [
     'update:h',
@@ -32,6 +33,7 @@ export type SpectrumComponent = number | "x" | "-x" | "y" | "-y"
     'lightness': 'markDirty',
     'width': 'markDirty',
     'height': 'markDirty',
+    'hideFilters': 'markDirty',
     'filterIds': {handler: 'filterIdsChanged', deep: true},
     'uniformParameters': {handler: 'parametersChanged', deep: true}
   }
@@ -43,9 +45,11 @@ export default class ColorSpectrum extends Vue {
   saturation!: SpectrumComponent
   lightness!: SpectrumComponent
   model!: Model
+  hideFilters!: boolean
 
   context!: WebGLRenderingContext
   shader!: SpectrumShader
+  nopShader!: SpectrumShader
   positionBuffer!: WebGLBuffer
   colorBuffer!: WebGLBuffer
 
@@ -89,6 +93,8 @@ export default class ColorSpectrum extends Vue {
         parameters.push(vector.a)
       }
     }
+    if(parameters.length === 0)
+      parameters.push(0, 0, 0, 0)
     return parameters
   }
 
@@ -105,6 +111,7 @@ export default class ColorSpectrum extends Vue {
   initializeContext() {
     const canvas = this.$refs['spectrum'] as HTMLCanvasElement
     this.context = canvas.getContext('webgl')!
+    this.nopShader = new SpectrumShader(this.context);
     this.shader = new SpectrumShader(this.context);
     this.shader.filterIds = this.filterIds
 
@@ -185,7 +192,9 @@ export default class ColorSpectrum extends Vue {
   }
 
   updateCanvas() {
-    this.shader.rebuildIfNeeded()
+    let shader = this.hideFilters ? this.nopShader : this.shader
+
+    shader.rebuildIfNeeded()
     let gl = this.context
 
     gl.clearColor(Math.random(), Math.random(), Math.random(), 1)
@@ -203,13 +212,13 @@ export default class ColorSpectrum extends Vue {
       const offset = 0;         // how many bytes inside the buffer to start from
       gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
       gl.vertexAttribPointer(
-          this.shader.positionAttribute,
+          shader.positionAttribute,
           numComponents,
           type,
           normalize,
           stride,
           offset);
-      gl.enableVertexAttribArray(this.shader.positionAttribute);
+      gl.enableVertexAttribArray(shader.positionAttribute);
     }
 
     {
@@ -221,24 +230,25 @@ export default class ColorSpectrum extends Vue {
       const offset = 0;         // how many bytes inside the buffer to start from
       gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
       gl.vertexAttribPointer(
-          this.shader.hslAttribute,
+          shader.hslAttribute,
           numComponents,
           type,
           normalize,
           stride,
           offset);
-      gl.enableVertexAttribArray(this.shader.hslAttribute);
+      gl.enableVertexAttribArray(shader.hslAttribute);
     }
 
     // Tell WebGL to use our program when drawing
 
-    gl.useProgram(this.shader.program);
-
     this.uploadComputedColors()
 
-    // Set the shader uniforms
-
-    gl.uniform4fv(this.shader.paramUniform, new Float32Array(this.uniformParameters))
+    if(this.hideFilters) {
+      gl.useProgram(shader.program);
+    } else {
+      gl.useProgram(shader.program);
+      gl.uniform4fv(shader.paramUniform, new Float32Array(this.uniformParameters))
+    }
 
     // gl.uniformMatrix4fv(
     //     programInfo.uniformLocations.projectionMatrix,

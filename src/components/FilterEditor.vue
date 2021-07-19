@@ -17,7 +17,7 @@ import {ParameterizedFilter} from "@/logic/Filter";
 @Options({
   components: {ParameterEditor},
   props: {
-    filter: {parameter: Object as PropType<ParameterizedFilter>, required: true}
+    filter: {type: Object as PropType<ParameterizedFilter>, required: true}
   }
 })
 export default class FilterEditor extends Vue {

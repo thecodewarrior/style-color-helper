@@ -37,13 +37,14 @@ import chroma from "chroma-js";
 import ColorPickerSpectrum from "@/components/ColorPickerSpectrum.vue";
 import {vec3} from "@/logic/math/vec";
 import Model from "@/logic/Model";
+import {PropType} from "vue";
 
 @Options({
   components: {
     ColorPickerSpectrum
   },
   props: {
-    model: {parameter: Model, required: true}
+    model: {type: Object as PropType<Model>, required: true}
   },
   watch: {
   },

@@ -1,13 +1,14 @@
-import {floor, vec3, vec4} from "@/logic/math/vec";
+import {vec3, vec4} from "@/logic/math/vec";
 import {Filter} from "@/logic/Filter";
+import {clamp, floor} from "@/logic/math/ops";
 
 export const filterTypes: Filter[] = [
   {
     id: "posterize",
     name: "Posterize",
     glsl: "color = floor(color * $0.x) / $0.y;",
-    parameters: [
-      {name: "Levels", type: "float", min: 2, default: 5}
+    controls: [
+      {name: "Levels", type: "stepper", default: 5, min: 2, max: 255}
     ],
     vectorize(factor: number) {
       return [new vec4(factor, factor - 1, 0, 0)]
@@ -20,7 +21,7 @@ export const filterTypes: Filter[] = [
     id: "blend_normal",
     name: "Blend Normal",
     glsl: "color = $0.rgb * $0.a + color * (1. - $0.a);",
-    parameters: [
+    controls: [
       {name: "Color", type: "rgba", default: new vec4(1, 0, 0, 1)}
     ],
     vectorize(color: vec4) {

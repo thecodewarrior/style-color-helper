@@ -1,13 +1,13 @@
 import {vec3, vec4} from "@/logic/math/vec";
 
-export type FloatParameter = { name: string, type: "float", min?: number, max?: number, default: number } // number
-export type IntParameter   = { name: string, type: "int", min?: number, max?: number, default: number } // number
+export type FloatParameter = { name: string, type: "slider", default: number, min: number, max: number } // number
+export type IntParameter   = { name: string, type: "stepper", default: number, min?: number, max?: number } // number
 export type RgbParameter   = { name: string, type: "rgb", default: vec3 } // vec3
 export type RgbaParameter  = { name: string, type: "rgba", default: vec4 } // vec4
 
 
-export type Parameter = FloatParameter | IntParameter | RgbParameter | RgbaParameter
-export type ParameterValue = number | vec3 | vec4
+export type FilterControl = FloatParameter | IntParameter | RgbParameter | RgbaParameter
+export type ControlValue = number | vec3 | vec4
 
 /**
  * A filter definition
@@ -27,25 +27,25 @@ export type Filter = {
   /**
    * The list of parameters that should be displayed.
    */
-  parameters: Parameter[],
+  controls: FilterControl[],
   /**
    * Converts the parameter list as defined in `parameters` into the vectors that should be passed to GLSL. This allows
    * filters to merge multiple parameters into a single vector.
    */
-  vectorize(...params: ParameterValue[]): vec4[]
+  vectorize(...params: ControlValue[]): vec4[]
   apply(color: vec3, ...params: vec4[]): vec3
 }
 
 export class ParameterizedFilter {
   readonly id: string
-  readonly parameters: Parameter[]
-  readonly values: ParameterValue[]
+  readonly parameters: FilterControl[]
+  readonly values: ControlValue[]
 
   constructor(
       readonly filter: Filter
   ) {
     this.id = filter.id
-    this.parameters = Array.of(...filter.parameters)
+    this.parameters = Array.of(...filter.controls)
     this.values = this.parameters.map(it => it.default)
   }
 

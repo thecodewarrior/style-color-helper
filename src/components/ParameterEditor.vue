@@ -1,7 +1,7 @@
 <template>
   <div class="parameter-editor">
     <div class="label">{{parameter.name}}</div>
-    <template v-if="parameter.type === 'float'">
+    <template v-if="parameter.type === 'slider'">
       <input type="number" :min="floatParameter.min" :max="floatParameter.max" v-model="state"/>
     </template>
 
@@ -11,8 +11,8 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import {
-  ParameterValue,
-  Parameter,
+  ControlValue,
+  FilterControl,
   FloatParameter,
   IntParameter, RgbaParameter, RgbParameter
 } from "@/logic/Filter";
@@ -22,16 +22,16 @@ import {vec3, vec4} from "@/logic/math/vec";
 @Options({
   components: {},
   props: {
-    parameter: Object as PropType<Parameter>,
-    value: [Number, vec3, vec4] as PropType<ParameterValue>
+    parameter: Object as PropType<FilterControl>,
+    value: [Number, vec3, vec4] as PropType<ControlValue>
   },
   emits: [
     'input'
   ]
 })
 export default class ParameterEditor extends Vue {
-  parameter!: Parameter
-  value!: ParameterValue
+  parameter!: FilterControl
+  value!: ControlValue
 
   get state(): string {
     return `${this.value}`
@@ -42,7 +42,7 @@ export default class ParameterEditor extends Vue {
     //   this.workingState = value
     // let validated = validate(this.parameter, value)
     // if(validated)
-    if(this.parameter.type === 'float')
+    if(this.parameter.type === 'slider')
       this.$emit('input', parseFloat(value))
   }
 

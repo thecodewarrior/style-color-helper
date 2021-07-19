@@ -8,6 +8,7 @@
         :width="renderWidth"
         :height="renderHeight"
         :model="model"
+        :hide-filters="hideFilters"
     ></spectrum>
     <div class="cursor" :style="cursorStyle"></div>
   </div>
@@ -27,14 +28,15 @@ import Model from "@/logic/Model";
     Spectrum: ColorSpectrum
   },
   props: {
-    hue: {parameter: [String as PropType<SpectrumComponent>, Number as PropType<SpectrumComponent>], required: true},
-    saturation: {parameter: [String as PropType<SpectrumComponent>, Number as PropType<SpectrumComponent>], required: true},
-    lightness: {parameter: [String as PropType<SpectrumComponent>, Number as PropType<SpectrumComponent>], required: true},
-    x: {parameter: Number, required: false, default: 0.5},
-    y: {parameter: Number, required: false, default: 0.5},
-    renderWidth: {parameter: Number, required: true},
-    renderHeight: {parameter: Number, required: true},
-    model: {parameter: Model, required: true},
+    hue: {type: [String as PropType<SpectrumComponent>, Number as PropType<SpectrumComponent>], required: true},
+    saturation: {type: [String as PropType<SpectrumComponent>, Number as PropType<SpectrumComponent>], required: true},
+    lightness: {type: [String as PropType<SpectrumComponent>, Number as PropType<SpectrumComponent>], required: true},
+    x: {type: Number, required: false, default: 0.5},
+    y: {type: Number, required: false, default: 0.5},
+    renderWidth: {type: Number, required: true},
+    renderHeight: {type: Number, required: true},
+    model: {type: Object as PropType<Model>, required: true},
+    hideFilters: {type: Boolean, default: false},
   },
   emits: [
     'update:x',
@@ -77,6 +79,7 @@ export default class ColorPickerSpectrum extends Vue implements DragDelegate {
 <style scoped>
 .color-picker-spectrum {
   position: relative;
+  user-select: none;
 }
 
 .cursor {

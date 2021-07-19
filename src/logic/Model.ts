@@ -2,6 +2,7 @@ import VueStore from "vue-class-store";
 import {ParameterizedFilter} from "@/logic/Filter";
 import chroma, {Color} from "chroma-js";
 import {vec3} from "@/logic/math/vec";
+import {clamp} from "@/logic/math/ops";
 
 @VueStore
 export default class Model {
@@ -15,12 +16,17 @@ export default class Model {
     return this.filters[this.filters.length - 1]
   }
 
+  get rawColor(): Color {
+    return chroma.hsl(this.hue, this.saturation, this.lightness)
+  }
+
   get computedColor(): Color {
-    let rgb = chroma.hsl(this.hue, this.saturation, this.lightness).rgb()
-    let color = new vec3(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255)
+    let rgb = this.rawColor.gl()
+    let color = new vec3(rgb[0], rgb[1], rgb[2])
     for(let filter of this.filters) {
       color = filter.apply(color)
+      color = clamp(color, 0, 1)
     }
-    return chroma.rgb(color.r * 255, color.g * 255, color.b * 255)
+    return chroma.gl(color.r, color.g, color.b)
   }
 }
