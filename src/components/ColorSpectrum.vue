@@ -1,5 +1,5 @@
 <template>
-  <canvas ref="spectrum" :width="width" :height="height"></canvas>
+  <canvas ref="spectrum"  :width="canvasWidth" :height="canvasHeight"></canvas>
 </template>
 
 <script lang="ts">
@@ -37,6 +37,8 @@ export type SpectrumComponent = number | "x" | "-x" | "y" | "-y"
   }
 })
 export default class ColorSpectrum extends Vue {
+  width!: number
+  height!: number
   hue!: SpectrumComponent
   saturation!: SpectrumComponent
   lightness!: SpectrumComponent
@@ -57,6 +59,14 @@ export default class ColorSpectrum extends Vue {
       });
     }
     this.needsUpdate = true
+  }
+
+  get canvasWidth() {
+    return this.width * window.devicePixelRatio
+  }
+
+  get canvasHeight() {
+    return this.height * window.devicePixelRatio
   }
 
   get filterIds(): string[] {
