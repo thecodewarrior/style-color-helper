@@ -1,6 +1,7 @@
 import {vec3, vec4} from "@/logic/math/vec";
 import {Filter} from "@/logic/Filter";
 import {clamp, floor} from "@/logic/math/ops";
+import chroma from "chroma-js";
 
 export const filterTypes: Filter[] = [
   {
@@ -22,13 +23,60 @@ export const filterTypes: Filter[] = [
     name: "Blend Normal",
     glsl: "color = $0.rgb * $0.a + color * (1. - $0.a);",
     controls: [
-      {name: "Color", type: "rgba", default: new vec4(1, 0, 0, 1)}
+      {name: "Color", type: "color", default: new vec3(1, 0, 0)},
+      {name: "Opacity", type: "slider", default: 0.5, min: 0, max: 1, step: 'any'},
     ],
-    vectorize(color: vec4) {
-      return [color]
+    vectorize(color: vec3, opacity: number) {
+      return [new vec4(color, opacity)]
     },
     apply(color: vec3, top: vec4) {
       return top.rgb.times(top.a).plus(color.times(1 - top.a));
+    }
+  },
+  {
+    id: "brightness_contrast",
+    name: "Brightness/contrast",
+    glsl: `
+vec3 hsl = rgb2hsl(color);
+float x = hsl.z;
+x += $0.x;
+if($0.y < 0.) {
+    x = x * (1. + $0.y) - $0.y / 2.;
+} else if($0.y == 1.) {
+    x = x < 0.5 ? 0. : 1.;
+} else {
+    x -= 0.5;
+    x = x / (1. - $0.y);
+    x += 0.5;
+}
+hsl.z = clamp(x, 0., 1.);
+color = hsl2rgb(hsl);
+`,
+    controls: [
+      {name: "Brightness", type: "slider", default: 0.0, min: -1, max: 1, step: 'any'},
+      {name: "Contrast", type: "slider", default: 0.0, min: -1, max: 1, step: 'any'},
+    ],
+    vectorize(brightness: number, contrast: number) {
+      return [new vec4(brightness, contrast, 0, 0)]
+    },
+    apply(color: vec3, v: vec4) {
+      let hsl = chroma.gl(color.r, color.g, color.b)
+      let x = hsl.get('hsl.l')
+
+      x += v.x
+      if(v.y < 0) {
+        x = x * (1 + v.y) - v.y / 2;
+      } else if(v.y === 1) {
+        x = x < 0.5  ? 0 : 1;
+      } else {
+        x -= 0.5;
+        x = x / (1 - v.y);
+        x += 0.5;
+      }
+      x = clamp(x, 0, 1);
+
+      let gl = hsl.set('hsl.l', x).gl()
+      return new vec3(gl[0], gl[1], gl[2])
     }
   }
 ]

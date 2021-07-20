@@ -1,12 +1,13 @@
 import {vec3, vec4} from "@/logic/math/vec";
-
-export type FloatParameter = { name: string, type: "slider", default: number, min: number, max: number } // number
-export type IntParameter   = { name: string, type: "stepper", default: number, min?: number, max?: number } // number
-export type RgbParameter   = { name: string, type: "rgb", default: vec3 } // vec3
-export type RgbaParameter  = { name: string, type: "rgba", default: vec4 } // vec4
+import {guid} from "@/utils";
+import VueStore from "vue-class-store";
 
 
-export type FilterControl = FloatParameter | IntParameter | RgbParameter | RgbaParameter
+export type SliderControl = { name: string, type: "slider", default: number, min: number, max: number, step?: number | 'any' } // number
+export type StepperControl = { name: string, type: "stepper", default: number, min?: number, max?: number} // number
+export type ColorControl = { name: string, type: "color", default: vec3 } // vec3
+
+export type FilterControl = SliderControl | StepperControl | ColorControl
 export type ControlValue = number | vec3 | vec4
 
 /**
@@ -36,15 +37,16 @@ export type Filter = {
   apply(color: vec3, ...params: vec4[]): vec3
 }
 
+@VueStore
 export class ParameterizedFilter {
-  readonly id: string
+  readonly id: string = guid()
   readonly parameters: FilterControl[]
   readonly values: ControlValue[]
+  visible: boolean = true
 
   constructor(
       readonly filter: Filter
   ) {
-    this.id = filter.id
     this.parameters = Array.of(...filter.controls)
     this.values = this.parameters.map(it => it.default)
   }
@@ -53,5 +55,3 @@ export class ParameterizedFilter {
     return this.filter.apply(color, ...this.filter.vectorize(...this.values))
   }
 }
-
-export type FilterSet = ParameterizedFilter[]

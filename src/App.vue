@@ -8,7 +8,6 @@
             v-model:x="hueAxis"
             :render-width="300" :render-height="1"
             :model="model"
-            :hide-filters="hideFilters"
         />
       </div>
       <div class="component-row">
@@ -18,7 +17,6 @@
             v-model:x="model.saturation"
             :render-width="300" :render-height="1"
             :model="model"
-            :hide-filters="hideFilters"
         />
       </div>
       <div class="component-row">
@@ -28,7 +26,6 @@
             v-model:x="model.lightness"
             :render-width="300" :render-height="1"
             :model="model"
-            :hide-filters="hideFilters"
         />
       </div>
       <div class="main-spectrum" :class="mainSpectrumClasses">
@@ -38,7 +35,6 @@
             v-model:x="hueAxis" v-model:y="inverseLightness"
             :render-width="300" :render-height="120"
             :model="model"
-            :hide-filters="hideFilters"
         />
       </div>
       <div class="swatch-row">
@@ -47,10 +43,43 @@
         </div>
       </div>
     </div>
+
     <div class="panel-separator"></div>
+
     <div class="filter-panel">
-      <mdicon style="color: var(--main-highlight);" :name="hideFilters ? 'eye-off' : 'eye'" @click="hideFilters = !hideFilters"/>
-      <filter-editor v-for="(filter, i) in model.filters" :key="i" :filter="filter"/>
+      <draggable
+          v-model="model.filters"
+          @start="drag=true"
+          @end="drag=false"
+          item-key="id"
+          handle=".filter-handle, .filter-name"
+      >
+        <template #header>
+          <button>Add</button>
+        </template>
+
+        <template #item="{element, index}">
+          <div class="filter-item">
+            <fa class="filter-handle" style="color: var(--main-highlight);" icon="grip-lines"/>
+            <div class="filter-show" @click.stop="toggle(index)">
+              <fa style="color: var(--main-highlight);" :icon="element.visible ? 'eye' : 'eye-slash'"/>
+            </div>
+            <div class="filter-name">{{ element.filter.name }}</div>
+            <fa class="filter-remove" style="color: var(--main-highlight);" icon="minus-circle" @click="removeFilter(index)"/>
+            <div class="filter-parameters">
+              <template v-for="(_, i) in element.values" :key="i">
+                <div class="parameter-name">{{ element.parameters[i].name }}</div>
+                <parameter-editor
+                    class="parameter-value"
+                    :parameter="element.parameters[i]"
+                    :value="element.values[i]"
+                    @input="element.values[i] = $event"
+                />
+              </template>
+            </div>
+          </div>
+        </template>
+      </draggable>
     </div>
   </div>
 </template>
@@ -60,19 +89,20 @@ import {Options, Vue} from 'vue-class-component';
 import ColorPicker from "@/components/ColorPicker.vue";
 import {ParameterizedFilter} from "@/logic/Filter";
 import {filterRegistry} from "@/logic/Filters";
-import FilterEditor from "@/components/FilterEditor.vue";
 import Model from "@/logic/Model";
 import ColorPickerSpectrum from "@/components/ColorPickerSpectrum.vue";
 import chroma, {Color} from "chroma-js";
-import {vec4} from "@/logic/math/vec";
+import ParameterEditor from "@/components/ParameterEditor.vue";
+import draggable from "vuedraggable";
 
 @Options({
-  components: {ColorPickerSpectrum, FilterEditor, ColorPicker},
+  components: {ParameterEditor, ColorPickerSpectrum, ColorPicker, draggable},
   props: {}
 })
 export default class App extends Vue {
   model: Model = new Model()
   hideFilters: boolean = false
+  drag: boolean = false
 
   get hueAxis(): number {
     return this.model.hue / 360
@@ -125,9 +155,20 @@ export default class App extends Vue {
     }
   }
 
+  removeFilter(idx: number) {
+    this.model.filters.splice(idx, 1);
+  }
+
+  toggle(idx: number) {
+    this.model.filters[idx].visible = !this.model.filters[idx].visible
+  }
+
   mounted() {
     this.model.addFilter(new ParameterizedFilter(filterRegistry["posterize"])).values[0] = 3
-    this.model.addFilter(new ParameterizedFilter(filterRegistry["blend_normal"])).values[0] = new vec4(1, 0, 1, 0.2)
+    // let filter = this.model.addFilter(new ParameterizedFilter(filterRegistry["blend_normal"]))
+    // filter.values[0] = new vec3(1, 0, 1)
+
+    this.model.addFilter(new ParameterizedFilter(filterRegistry["brightness_contrast"]))
   }
 }
 </script>
@@ -148,6 +189,12 @@ body {
   --main-highlight: #0fb1ad;
   --main-background: #1a283d;
   --main-border: #1a1c31;
+
+  font-family: 'Roboto Mono', sans-serif;
+  color: var(--main-highlight);
+  font-weight: 600;
+  font-size: 14px;
+
 }
 </style>
 
@@ -201,6 +248,7 @@ body {
 
   text-align: center;
   font-family: 'Roboto Mono', sans-serif;
+  font-weight: 600;
   font-size: 20px;
   text-transform: uppercase;
 
@@ -223,5 +271,46 @@ body {
 
   margin: -10px 0;
   justify-self: center;
+}
+
+.filter-item {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  grid-template-areas:
+      "handle show name remove"
+      ". parameters parameters parameters";
+  align-items: center;
+  gap: 5px 10px;
+  margin-bottom: 15px;
+}
+
+.filter-handle {
+  grid-area: handle;
+  font-size: 1.2em;
+  cursor: grab;
+}
+
+.filter-show {
+  grid-area: show;
+  font-size: 1.2em;
+  cursor: pointer;
+}
+
+.filter-name {
+  grid-area: name;
+  font-size: 1.2em;
+  cursor: grab;
+}
+
+.filter-remove {
+  grid-area: remove;
+  font-size: 1.2em;
+  cursor: pointer;
+}
+
+.filter-parameters {
+  grid-area: parameters;
+  display: grid;
+  grid-template-columns: 100px 1fr;
 }
 </style>

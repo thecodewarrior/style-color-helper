@@ -4,7 +4,6 @@
 
 <script lang="ts">
 import {Options, Vue} from 'vue-class-component';
-import {FilterSet} from "@/logic/Filter";
 import {PropType} from "vue";
 import SpectrumShader from "../logic/SpectrumShader";
 import Model from "@/logic/Model";
@@ -33,9 +32,9 @@ export type SpectrumComponent = number | "x" | "-x" | "y" | "-y"
     'lightness': 'markDirty',
     'width': 'markDirty',
     'height': 'markDirty',
-    'hideFilters': 'markDirty',
     'filterIds': {handler: 'filterIdsChanged', deep: true},
-    'uniformParameters': {handler: 'parametersChanged', deep: true}
+    'filterVisibilities': {handler: 'markDirty', deep: true},
+    'filterParameters': {handler: 'markDirty', deep: true},
   }
 })
 export default class ColorSpectrum extends Vue {
@@ -74,7 +73,7 @@ export default class ColorSpectrum extends Vue {
   }
 
   get filterIds(): string[] {
-    return this.model.filters.map(it => it.id)
+    return this.model.filters.map(it => it.filter.id)
   }
 
   filterIdsChanged() {
@@ -82,7 +81,7 @@ export default class ColorSpectrum extends Vue {
     this.markDirty()
   }
 
-  get uniformParameters(): number[] {
+  get filterParameters(): number[] {
     let parameters = []
     for(let filter of this.model.filters) {
       let vectors = filter.filter.vectorize(...filter.values)
@@ -98,12 +97,17 @@ export default class ColorSpectrum extends Vue {
     return parameters
   }
 
-  parametersChanged() {
-    this.markDirty()
+  get filterVisibilities(): number[] {
+    let parameters = []
+    for(let filter of this.model.filters) {
+      parameters.push(filter.visible ? 1 : 0)
+    }
+    if(parameters.length === 0)
+      parameters.push(0)
+    return parameters
   }
 
   mounted() {
-    console.log("wtf")
     this.initializeContext()
     this.updateCanvas()
   }
@@ -247,7 +251,8 @@ export default class ColorSpectrum extends Vue {
       gl.useProgram(shader.program);
     } else {
       gl.useProgram(shader.program);
-      gl.uniform4fv(shader.paramUniform, new Float32Array(this.uniformParameters))
+      gl.uniform4fv(shader.paramUniform, new Float32Array(this.filterParameters))
+      gl.uniform1iv(shader.visibilityUniform, new Int32Array(this.filterVisibilities))
     }
 
     // gl.uniformMatrix4fv(
