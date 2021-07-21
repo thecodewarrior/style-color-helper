@@ -1,5 +1,7 @@
 <template>
-  <canvas ref="spectrum"  :width="canvasWidth" :height="canvasHeight"></canvas>
+  <div>
+    <canvas ref="spectrum" :width="canvasWidth" :height="canvasHeight"></canvas>
+  </div>
 </template>
 
 <script lang="ts">
@@ -276,4 +278,8 @@ export default class ColorSpectrum extends Vue {
 </script>
 
 <style scoped>
+canvas {
+  width: 100%;
+  height: 100%;
+}
 </style>
