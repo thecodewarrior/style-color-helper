@@ -1,5 +1,5 @@
 <template>
-  <div class="color-picker-spectrum" @mousedown="startDrag()">
+  <div class="color-picker-spectrum" @mousedown="startMouse" @touchstart="startTouch">
     <spectrum
         class="spectrum"
         :hue="hue"
@@ -64,13 +64,29 @@ export default class ColorPickerSpectrum extends Vue implements DragDelegate {
     this.drag(x, y)
   }
 
+  dragMouse(x: number, y: number) {
+    this.drag(x, y)
+  }
+
+  touchEnd(x: number, y: number): void {
+    this.drag(x, y)
+  }
+
+  dragTouch(x: number, y: number) {
+    this.drag(x, y)
+  }
+
   drag(x: number, y: number) {
     this.$emit('update:x', clamp(0, x, 1))
     this.$emit('update:y', clamp(0, y, 1))
   }
 
-  startDrag() {
-    DragHandler.start(this)
+  startMouse(e: MouseEvent) {
+    DragHandler.startMouse(this, e)
+  }
+
+  startTouch(e: TouchEvent) {
+    DragHandler.startTouch(this, e)
   }
 }
 </script>
@@ -79,6 +95,7 @@ export default class ColorPickerSpectrum extends Vue implements DragDelegate {
 .color-picker-spectrum {
   position: relative;
   user-select: none;
+  touch-action: none;
 }
 
 .cursor {
