@@ -32,6 +32,7 @@ export type SpectrumComponent = number | "x" | "-x" | "y" | "-y"
     'lightness': 'markDirty',
     'width': 'markDirty',
     'height': 'markDirty',
+    'hideFilters': 'markDirty',
     'filterIds': {handler: 'filterIdsChanged', deep: true},
     'filterVisibilities': {handler: 'markDirty', deep: true},
     'filterParameters': {handler: 'markDirty', deep: true},

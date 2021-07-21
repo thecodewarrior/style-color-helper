@@ -8,6 +8,7 @@
         :width="renderWidth"
         :height="renderHeight"
         :model="model"
+        :hide-filters="hideFilters"
     ></spectrum>
     <div class="cursor" :style="cursorStyle"></div>
   </div>
@@ -34,6 +35,7 @@ import Model from "@/logic/Model";
     renderWidth: {type: Number, required: true},
     renderHeight: {type: Number, required: true},
     model: {type: Object as PropType<Model>, required: true},
+    hideFilters: {type: Boolean, default: false},
   },
   emits: [
     'update:x',

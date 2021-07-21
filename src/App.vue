@@ -8,6 +8,7 @@
             v-model:x="hueAxis"
             :render-width="300" :render-height="1"
             :model="model"
+            :hide-filters="hideFilters"
         />
       </div>
       <div class="component-row">
@@ -17,6 +18,7 @@
             v-model:x="model.saturation"
             :render-width="300" :render-height="1"
             :model="model"
+            :hide-filters="hideFilters"
         />
       </div>
       <div class="component-row">
@@ -26,6 +28,7 @@
             v-model:x="model.lightness"
             :render-width="300" :render-height="1"
             :model="model"
+            :hide-filters="hideFilters"
         />
       </div>
       <div class="main-spectrum" :class="mainSpectrumClasses">
@@ -35,6 +38,7 @@
             v-model:x="hueAxis" v-model:y="inverseLightness"
             :render-width="300" :render-height="120"
             :model="model"
+            :hide-filters="hideFilters"
         />
       </div>
       <div class="swatch-row">
@@ -55,7 +59,12 @@
           handle=".filter-handle, .filter-name"
       >
         <template #header>
-          <button>Add</button>
+          <div class="filter-header">
+            <div class="filter-show" @click.stop="hideFilters = !hideFilters">
+              <fa style="color: var(--main-highlight);" :icon="hideFilters ? 'eye-slash' : 'eye'"/>
+            </div>
+            <button>Add</button>
+          </div>
         </template>
 
         <template #item="{element, index}">
@@ -312,5 +321,10 @@ body {
   grid-area: parameters;
   display: grid;
   grid-template-columns: 100px 1fr;
+}
+
+.filter-header {
+  display: flex;
+  flex-direction: row;
 }
 </style>
