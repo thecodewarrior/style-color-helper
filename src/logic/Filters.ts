@@ -1,6 +1,6 @@
 import {vec3, vec4} from "@/logic/math/vec";
 import {Filter} from "@/logic/Filter";
-import {clamp, floor} from "@/logic/math/ops";
+import {clamp, floor, hsl2rgb, rgb2hsl} from "@/logic/math/ops";
 import chroma from "chroma-js";
 
 export const filterTypes: Filter[] = [
@@ -60,8 +60,8 @@ color = hsl2rgb(hsl);
       return [new vec4(brightness, contrast, 0, 0)]
     },
     apply(color: vec3, v: vec4) {
-      let hsl = chroma.gl(color.r, color.g, color.b)
-      let x = hsl.get('hsl.l')
+      let hsl = rgb2hsl(color)
+      let x = hsl.z
 
       x += v.x
       if(v.y < 0) {
@@ -75,8 +75,8 @@ color = hsl2rgb(hsl);
       }
       x = clamp(x, 0, 1);
 
-      let gl = hsl.set('hsl.l', x).gl()
-      return new vec3(gl[0], gl[1], gl[2])
+      hsl.z = x;
+      return hsl2rgb(hsl)
     }
   }
 ]

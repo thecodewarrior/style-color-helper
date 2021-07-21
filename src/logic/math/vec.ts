@@ -55,14 +55,26 @@ export class vec4 {
   public get x(): number {
     return this.r
   }
+  public set x(value: number) {
+    this.r = value
+  }
   public get y(): number {
     return this.g
+  }
+  public set y(value: number) {
+    this.g = value
   }
   public get z(): number {
     return this.b
   }
+  public set z(value: number) {
+    this.b = value
+  }
   public get w(): number {
     return this.a
+  }
+  public set w(value: number) {
+    this.a = value
   }
 
   public plus(other: vec4 | vec3): vec4 {
@@ -129,11 +141,20 @@ export class vec3 {
   public get x(): number {
     return this.r
   }
+  public set x(value: number) {
+    this.r = value
+  }
   public get y(): number {
     return this.g
   }
+  public set y(value: number) {
+    this.g = value
+  }
   public get z(): number {
     return this.b
+  }
+  public set z(value: number) {
+    this.b = value
   }
 
   public plus(other: vec3): vec3 {

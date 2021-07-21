@@ -1,4 +1,5 @@
 import {vec3, vec4} from "@/logic/math/vec";
+import chroma from "chroma-js";
 
 export function map(n: number, fn: (v: number) => number): number;
 export function map(n: vec4, fn: (v: number) => number): vec4;
@@ -49,4 +50,15 @@ export function clamp(v: number | vec3 | vec4, min: number | vec3 | vec4, max: n
   } else { // single number bound
     return map(v, (value) => Math.min(max as number, Math.max(min as number, value)))
   }
+}
+
+export function rgb2hsl(rgb: vec3): vec3 {
+  let color = chroma.gl(rgb.r, rgb.g, rgb.b)
+  return new vec3(...color.hsl())
+}
+
+export function hsl2rgb(hsl: vec3): vec3 {
+  let color = chroma.hsl(hsl.x, hsl.y, hsl.z)
+  let gl = color.gl()
+  return new vec3(gl[0], gl[1], gl[2])
 }
