@@ -1,6 +1,7 @@
 <template>
   <div class="color-panel">
-    <div class="component-row hue">
+    <div class="component-row" style="grid-area: hue;">
+      <div class="component-label">H</div>
       <color-picker-spectrum
           hue="x" :saturation="model.saturation" :lightness="model.lightness"
           v-model:x="hueAxis"
@@ -8,8 +9,10 @@
           :model="model"
           :hide-filters="hideFilters"
       />
+      <div class="component-value">{{hueDisplay}}</div>
     </div>
-    <div class="component-row saturation">
+    <div class="component-row" style="grid-area: saturation;">
+      <div class="component-label">S</div>
       <color-picker-spectrum
           :hue="model.hue" saturation="x" :lightness="model.lightness"
           v-model:x="model.saturation"
@@ -17,8 +20,10 @@
           :model="model"
           :hide-filters="hideFilters"
       />
+      <div class="component-value">{{saturationDisplay}}</div>
     </div>
-    <div class="component-row lightness">
+    <div class="component-row" style="grid-area: lightness;">
+      <div class="component-label">L</div>
       <color-picker-spectrum
           :hue="model.hue" :saturation="model.saturation" lightness="x"
           v-model:x="model.lightness"
@@ -26,8 +31,9 @@
           :model="model"
           :hide-filters="hideFilters"
       />
+      <div class="component-value">{{lightnessDisplay}}</div>
     </div>
-    <div class="main-spectrum" ref="main" :class="mainSpectrumClasses">
+    <div class="main-spectrum" ref="main" :class="mainSpectrumClasses" style="grid-area: main;">
       <color-picker-spectrum
           hue="x" :saturation="model.saturation" lightness="-y"
           v-model:x="hueAxis" v-model:y="inverseLightness"
@@ -36,8 +42,8 @@
           :hide-filters="hideFilters"
       />
     </div>
-    <div class="swatch original-color" :style="rawSwatchStyle">{{ model.rawColor.hex() }}</div>
-    <div class="swatch filtered-color" :style="filteredSwatchStyle">{{ model.computedColor.hex() }}</div>
+    <div class="swatch" :style="[rawSwatchStyle, 'grid-area: original;']">{{ model.rawColor.hex() }}</div>
+    <div class="swatch" :style="[filteredSwatchStyle, 'grid-area: filtered;']">{{ model.computedColor.hex() }}</div>
   </div>
 </template>
 
@@ -74,6 +80,18 @@ export default class ColorPanel extends Vue {
 
   set inverseLightness(value: number) {
     this.model.lightness = 1 - value
+  }
+
+  get hueDisplay(): number {
+    return Math.round(this.model.hue)
+  }
+
+  get saturationDisplay(): number {
+    return Math.round(this.model.saturation * 100)
+  }
+
+  get lightnessDisplay(): number {
+    return Math.round(this.model.lightness * 100)
   }
 
   get rawSwatchStyle() {
@@ -124,7 +142,7 @@ export default class ColorPanel extends Vue {
 <style scoped>
 .color-panel {
   display: grid;
-  grid-template-rows: 30px 30px 30px 1fr auto;
+  grid-template-rows: auto auto auto 1fr auto;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-areas:
       "hue hue"
@@ -135,12 +153,31 @@ export default class ColorPanel extends Vue {
   column-gap: 15px;
 }
 
-.component-row .color-picker-spectrum {
-  height: 20px;
+.component-row {
+  display: grid;
+  grid-template-columns: auto 1fr 35px;
+  padding-left: 4px;
+  padding-right: 3px;
+  margin-bottom: 5px;
+
+  background: var(--alt-background);
+  border: var(--standard-border);
+  border-radius: 100px;
+}
+
+.component-label {
+  border-right: var(--standard-border);
+  text-align: right;
+  padding-right: 3px;
+}
+
+.component-value {
+  border-left: var(--standard-border);
+  text-align: center;
 }
 
 .main-spectrum {
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
 .main-spectrum .color-picker-spectrum {
@@ -148,7 +185,7 @@ export default class ColorPanel extends Vue {
 }
 
 .main-spectrum >>> .spectrum {
-  border: 5px solid var(--main-border);
+  border: var(--standard-border);
   border-radius: 20px;
   transition: border-radius 0.5s;
   overflow: hidden;
@@ -177,26 +214,8 @@ export default class ColorPanel extends Vue {
   font-size: 20px;
   text-transform: uppercase;
 
-  border: 5px solid var(--main-border);
+  border: var(--standard-border);
   border-radius: 20px;
 }
 
-.hue {
-  grid-area: hue;
-}
-.saturation {
-  grid-area: saturation;
-}
-.lightness {
-  grid-area: lightness;
-}
-.main-spectrum {
-  grid-area: main;
-}
-.original-color {
-  grid-area: original;
-}
-.filtered-color {
-  grid-area: filtered;
-}
 </style>

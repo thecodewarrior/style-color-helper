@@ -41,8 +41,16 @@ export default class App extends Vue {
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600&display=swap');
 
+:root {
+  --alt-background: #001119;
+  --main-highlight: #0fb1ad;
+  --main-background: #1a283d;
+  --main-border: #1a1c31;
+  --standard-border: 5px solid var(--main-border);
+}
+
 body {
-  background-color: #001119;
+  background-color: var(--alt-background);
 }
 
 #app {
@@ -51,15 +59,10 @@ body {
   align-items: center;
   margin-top: 50px;
 
-  --main-highlight: #0fb1ad;
-  --main-background: #1a283d;
-  --main-border: #1a1c31;
-
   font-family: 'Roboto Mono', sans-serif;
   color: var(--main-highlight);
   font-weight: 600;
   font-size: 14px;
-
 }
 </style>
 
