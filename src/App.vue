@@ -40,6 +40,7 @@ export default class App extends Vue {
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600&display=swap');
+@import 'tippy.css';
 
 :root {
   --alt-background: #001119;
@@ -47,6 +48,11 @@ export default class App extends Vue {
   --main-background: #1a283d;
   --main-border: #1a1c31;
   --standard-border: 5px solid var(--main-border);
+
+  font-family: 'Roboto Mono', sans-serif;
+  color: var(--main-highlight);
+  font-weight: 600;
+  font-size: 14px;
 }
 
 body {
@@ -58,11 +64,6 @@ body {
   flex-direction: column;
   align-items: center;
   margin-top: 50px;
-
-  font-family: 'Roboto Mono', sans-serif;
-  color: var(--main-highlight);
-  font-weight: 600;
-  font-size: 14px;
 }
 </style>
 

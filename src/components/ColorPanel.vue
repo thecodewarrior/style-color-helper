@@ -42,8 +42,10 @@
           :hide-filters="hideFilters"
       />
     </div>
-    <div class="swatch" :style="[rawSwatchStyle, 'grid-area: original;']">{{ model.rawColor.hex() }}</div>
-    <div class="swatch" :style="[filteredSwatchStyle, 'grid-area: filtered;']">{{ model.computedColor.hex() }}</div>
+    <div class="swatch" :style="[rawSwatchStyle, 'grid-area: original;']" v-tippy:original>{{ model.rawColor.hex() }}</div>
+    <tippy target="original">Original</tippy>
+    <div class="swatch" :style="[filteredSwatchStyle, 'grid-area: filtered;']" v-tippy:filtered>{{ model.computedColor.hex() }}</div>
+    <tippy target="filtered">Filtered</tippy>
   </div>
 </template>
 
@@ -53,9 +55,11 @@ import Model from "@/logic/Model";
 import ColorPickerSpectrum from "@/components/ColorPickerSpectrum.vue";
 import chroma, {Color} from "chroma-js";
 import {PropType} from "vue";
+import Tippy from "@/lib/Tippy.vue";
 
 @Options({
   components: {
+    Tippy,
     ColorPickerSpectrum
   },
   props: {

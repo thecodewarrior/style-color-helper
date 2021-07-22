@@ -1,0 +1,14 @@
+@import '~tippy.js/dist/tippy.css';
+@import '~tippy.js/dist/svg-arrow.css';
+
+.tippy-box[data-theme~='helper'] {
+    background-color: var(--main-background);
+    border: 2px solid var(--main-highlight);
+}
+.tippy-box[data-theme~='helper'] > .tippy-svg-arrow {
+    fill: var(--main-background);
+    stroke: var(--main-highlight);
+    stroke-width: 2px;
+}
+.tippy-content {
+}
