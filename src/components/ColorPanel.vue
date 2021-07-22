@@ -42,10 +42,10 @@
           :hide-filters="hideFilters"
       />
     </div>
-    <div class="swatch" :style="[rawSwatchStyle, 'grid-area: original;']" v-tippy:original>{{ model.rawColor.hex() }}</div>
-    <tippy target="original">Original</tippy>
-    <div class="swatch" :style="[filteredSwatchStyle, 'grid-area: filtered;']" v-tippy:filtered>{{ model.computedColor.hex() }}</div>
-    <tippy target="filtered">Filtered</tippy>
+    <div class="swatch" :style="[rawSwatchStyle, 'grid-area: original;']" v-tippy:original @click="copyOriginal">{{ model.rawColor.hex() }}</div>
+    <tippy target="original" trigger="manual" :visible="originalCopyVisible">Copied</tippy>
+    <div class="swatch" :style="[filteredSwatchStyle, 'grid-area: filtered;']" v-tippy:filtered @click="copyFiltered">{{ model.computedColor.hex() }}</div>
+    <tippy target="filtered" trigger="manual" :visible="filteredCopyVisible">Copied</tippy>
   </div>
 </template>
 
@@ -69,6 +69,10 @@ import Tippy from "@/lib/Tippy.vue";
 })
 export default class ColorPanel extends Vue {
   model!: Model
+  originalCopyVisible: boolean = false
+  originalCopyTimeout: number = -1
+  filteredCopyVisible: boolean = false
+  filteredCopyTimeout: number = -1
 
   get hueAxis(): number {
     return this.model.hue / 360
@@ -130,6 +134,26 @@ export default class ColorPanel extends Vue {
       'collapse-top-right': top && right,
       'collapse-bottom-right': bottom && right,
     }
+  }
+
+  copyOriginal() {
+    navigator.clipboard.writeText(this.model.rawColor.hex().substring(1).toUpperCase()).then(() => {
+      this.originalCopyVisible = true
+      clearTimeout(this.originalCopyTimeout)
+      this.originalCopyTimeout = setTimeout(() => {
+        this.originalCopyVisible = false 
+      }, 750)
+    })
+  }
+
+  copyFiltered() {
+    navigator.clipboard.writeText(this.model.computedColor.hex().substring(1).toUpperCase()).then(() => {
+      this.filteredCopyVisible = true
+      clearTimeout(this.filteredCopyTimeout)
+      this.filteredCopyTimeout = setTimeout(() => {
+        this.filteredCopyVisible = false
+      }, 750)
+    })
   }
 
   private static swatchStyle(color: Color) {
