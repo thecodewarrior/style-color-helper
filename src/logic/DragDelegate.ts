@@ -18,6 +18,7 @@ export const DragHandler = new (class {
     document.addEventListener("mouseup", e => this.mouseup(e));
     document.addEventListener("mousemove", e => this.mousemove(e));
 
+    document.addEventListener("touchcancel", e => this.touchend(e));
     document.addEventListener("touchend", e => this.touchend(e));
     document.addEventListener("touchmove", e => this.touchmove(e));
   }
