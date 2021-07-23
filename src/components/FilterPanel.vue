@@ -12,11 +12,12 @@
         @start="drag=true"
         @end="drag=false"
         item-key="id"
-        handle=".filter-handle, .filter-name"
+        handle=".filter-handle"
+        animation="150"
     >
       <template #item="{element, index}">
         <div class="filter-item">
-          <fa class="filter-handle" style="color: var(--main-highlight);" icon="grip-lines"/>
+          <div class="filter-handle"><fa style="color: var(--main-highlight);" icon="grip-lines"/></div>
           <div class="filter-show" @click.stop="toggle(index)">
             <fa style="color: var(--main-highlight);" :icon="element.visible ? 'eye' : 'eye-slash'"/>
           </div>
@@ -102,28 +103,30 @@ export default class FilterPanel extends Vue {
   grid-template-columns: auto auto 1fr auto;
   grid-template-areas:
       "handle show name remove"
-      ". parameters parameters parameters";
+      "handle parameters parameters parameters";
   align-items: center;
   gap: 5px 10px;
   margin-bottom: 15px;
+  background: var(--main-background);
 }
 
 .filter-handle {
   grid-area: handle;
   font-size: 1.2em;
   cursor: grab;
+  align-self: stretch;
 }
 
 .filter-show {
   grid-area: show;
   font-size: 1.2em;
   cursor: pointer;
+  align-self: center;
 }
 
 .filter-name {
   grid-area: name;
   font-size: 1.2em;
-  cursor: grab;
 }
 
 .filter-remove {
