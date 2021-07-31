@@ -47,7 +47,7 @@ import ColorPickerSpectrum from "@/components/ColorPickerSpectrum.vue";
 import chroma, {Color} from "chroma-js";
 import {PropType} from "vue";
 import draggable from "vuedraggable";
-import ParameterEditor from "@/components/ParameterEditor.vue";
+import ParameterEditor from "@/components/parameter/ParameterEditor.vue";
 
 @Options({
   components: {
@@ -139,6 +139,7 @@ export default class FilterPanel extends Vue {
   grid-area: parameters;
   display: grid;
   grid-template-columns: 100px 1fr;
+  align-items: center;
 }
 
 .filter-header {

@@ -1,5 +1,8 @@
 <template>
   <div class="parameter-editor">
+    <template v-if="parameter.type === 'number'">
+      <number-input :control="parameter" :value="value" @input="input"></number-input>
+    </template>
     <template v-if="parameter.type === 'stepper'">
       <input type="number" :min="stepperControl.min" :max="stepperControl.max" v-model="state"/>
     </template>
@@ -19,9 +22,10 @@ import {
 } from "@/logic/Filter";
 import {PropType} from "vue";
 import {vec3, vec4} from "@/logic/math/vec";
+import NumberInput from "@/components/parameter/NumberInput.vue";
 
 @Options({
-  components: {},
+  components: {NumberInput},
   props: {
     parameter: Object as PropType<FilterControl>,
     value: [Number, vec3, vec4] as PropType<ControlValue>
@@ -33,6 +37,10 @@ import {vec3, vec4} from "@/logic/math/vec";
 export default class ParameterEditor extends Vue {
   parameter!: FilterControl
   value!: ControlValue
+
+  input(value: ControlValue) {
+    this.$emit('input', value)
+  }
 
   get state(): string {
     return `${this.value}`
@@ -69,8 +77,19 @@ export default class ParameterEditor extends Vue {
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: center;
 }
 .label {
   flex-grow: 1;
+}
+input[type="text"], input[type="number"] {
+  font: inherit;
+  color: inherit;
+  background: var(--alt-background);
+  border: 2px solid;
+  border-top-color: var(--main-border);
+  border-left-color: var(--main-border);
+  border-bottom-color: var(--main-border);
+  border-right-color: var(--main-border);
 }
 </style>

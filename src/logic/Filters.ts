@@ -1,7 +1,35 @@
 import {vec3, vec4} from "@/logic/math/vec";
 import {Filter} from "@/logic/Filter";
 import {clamp, floor, hsl2rgb, rgb2hsl} from "@/logic/math/ops";
-import chroma from "chroma-js";
+
+// complete:
+//  - posterize
+//  - brightness/contrast
+//
+// todo:
+//  # dani
+//  - normal
+//  - multiply
+//  - additive
+//  - color burn
+//  - color dodge
+//  - reflect
+//  - glow
+//  - overlay
+//  - difference
+//  - negation
+//  - lighten
+//  - darken
+//  - screen
+//  - xor
+//  # css
+//  -
+//  -
+//  # me
+//  - adjust HSL (±H, ±S, ±L)
+//  - set hue
+//  - set saturation
+//  - set lightness
 
 export const filterTypes: Filter[] = [
   {
@@ -9,7 +37,7 @@ export const filterTypes: Filter[] = [
     name: "Posterize",
     glsl: "color = floor(color * $0.x) / $0.y;",
     controls: [
-      {name: "Levels", type: "stepper", default: 5, min: 2, max: 255}
+      {name: "Levels", type: "number", default: 5, min: 2, max: 255, step: 1}
     ],
     vectorize(factor: number) {
       return [new vec4(factor, factor - 1, 0, 0)]
