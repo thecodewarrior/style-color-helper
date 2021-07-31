@@ -1,7 +1,7 @@
 import {library} from '@fortawesome/fontawesome-svg-core'
 import {
   faEye, faEyeSlash,
-  faGripLines, faMinus, faMinusCircle, faPlus,
+  faGripLines, faMinus, faMinusCircle, faPlus, faTimes,
 } from '@fortawesome/free-solid-svg-icons'
 
 export function initIcons() {
@@ -11,6 +11,7 @@ export function initIcons() {
       faEyeSlash,
       faMinusCircle,
       faPlus,
-      faMinus
+      faMinus,
+      faTimes
   )
 }
