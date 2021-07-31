@@ -212,23 +212,40 @@ export default class ColorPanel extends Vue {
   height: 100%;
 }
 
-.main-spectrum >>> .spectrum {
+.main-spectrum {
   border: var(--standard-border);
   border-radius: 20px;
+  transition: border-radius 0.5s;
+}
+
+.main-spectrum >>> .spectrum {
+  border-radius: 15px;
   transition: border-radius 0.5s;
   overflow: hidden;
 }
 
 .main-spectrum.collapse-top-left >>> .spectrum {
-  border-top-left-radius: 1px;
+  border-top-left-radius: 0;
 }
 .main-spectrum.collapse-bottom-left >>> .spectrum {
-  border-bottom-left-radius: 1px;
+  border-bottom-left-radius: 0;
 }
 .main-spectrum.collapse-top-right >>> .spectrum {
-  border-top-right-radius: 1px;
+  border-top-right-radius: 0;
 }
 .main-spectrum.collapse-bottom-right >>> .spectrum {
+  border-bottom-right-radius: 0;
+}
+.main-spectrum.collapse-top-left {
+  border-top-left-radius: 1px;
+}
+.main-spectrum.collapse-bottom-left {
+  border-bottom-left-radius: 1px;
+}
+.main-spectrum.collapse-top-right {
+  border-top-right-radius: 1px;
+}
+.main-spectrum.collapse-bottom-right {
   border-bottom-right-radius: 1px;
 }
 
