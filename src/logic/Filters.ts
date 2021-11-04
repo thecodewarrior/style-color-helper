@@ -68,7 +68,9 @@ export const filterTypes: Filter[] = [
 vec3 hsl = rgb2hsl(color);
 float x = hsl.z;
 x += $0.x;
-if($0.y < 0.) {
+if($0.y == 0.) {
+    // nop
+} else if($0.y < 0.) {
     x = x * (1. + $0.y) - $0.y / 2.;
 } else if($0.y == 1.) {
     x = x < 0.5 ? 0. : 1.;
@@ -92,7 +94,9 @@ color = hsl2rgb(hsl);
       let x = hsl.z
 
       x += v.x
-      if(v.y < 0) {
+      if(v.y === 0) {
+        // nop
+      } else if(v.y < 0) {
         x = x * (1 + v.y) - v.y / 2;
       } else if(v.y === 1) {
         x = x < 0.5  ? 0 : 1;
