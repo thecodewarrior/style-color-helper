@@ -1,6 +1,6 @@
 <template>
   <div class="color-panel">
-    <div class="component-row" style="grid-area: hue;">
+    <div class="component-row" style="grid-area: hue;" v-tippy:hue>
       <div class="component-label">H</div>
       <color-picker-spectrum
           hue="x" :saturation="model.saturation" :lightness="model.lightness"
@@ -11,7 +11,8 @@
       />
       <div class="component-value">{{hueDisplay}}</div>
     </div>
-    <div class="component-row" style="grid-area: saturation;">
+    <tippy target="hue" placement="right" :extra="{hideOnClick: false}">{{exactHueDisplay}}</tippy>
+    <div class="component-row" style="grid-area: saturation;" v-tippy:saturation>
       <div class="component-label">S</div>
       <color-picker-spectrum
           :hue="model.hue" saturation="x" :lightness="model.lightness"
@@ -22,7 +23,8 @@
       />
       <div class="component-value">{{saturationDisplay}}</div>
     </div>
-    <div class="component-row" style="grid-area: lightness;">
+    <tippy target="saturation" placement="right" :extra="{hideOnClick: false}">{{exactSaturationDisplay}}</tippy>
+    <div class="component-row" style="grid-area: lightness;" v-tippy:lightness>
       <div class="component-label">L</div>
       <color-picker-spectrum
           :hue="model.hue" :saturation="model.saturation" lightness="x"
@@ -33,11 +35,12 @@
       />
       <div class="component-value">{{lightnessDisplay}}</div>
     </div>
+    <tippy target="lightness" placement="right" :extra="{hideOnClick: false}">{{exactLightnessDisplay}}</tippy>
     <div class="main-spectrum" ref="main" :class="mainSpectrumClasses" style="grid-area: main;">
       <color-picker-spectrum
           hue="x" :saturation="model.saturation" lightness="-y"
           v-model:x="hueAxis" v-model:y="inverseLightness"
-          :render-width="300" :render-height="120"
+          :render-width="3000" :render-height="1200"
           :model="model"
           :hide-filters="hideFilters"
       />
@@ -94,12 +97,24 @@ export default class ColorPanel extends Vue {
     return Math.round(this.model.hue)
   }
 
+  get exactHueDisplay(): string {
+    return (Math.round(this.model.hue * 100) / 100).toFixed(2)
+  }
+
   get saturationDisplay(): number {
     return Math.round(this.model.saturation * 100)
   }
 
+  get exactSaturationDisplay(): string {
+    return (Math.round(this.model.saturation * 100 * 100) / 100).toFixed(2)
+  }
+
   get lightnessDisplay(): number {
     return Math.round(this.model.lightness * 100)
+  }
+
+  get exactLightnessDisplay(): string {
+    return (Math.round(this.model.lightness * 100 * 100) / 100).toFixed(2)
   }
 
   get rawSwatchStyle() {
@@ -110,15 +125,27 @@ export default class ColorPanel extends Vue {
     return ColorPanel.swatchStyle(this.model.computedColor)
   }
 
+  lastMainSize: {width: number, height: number} = {width: 0, height: 0}
+
+  mainSize(): {width: number, height: number} {
+    let main = this.$refs.main
+    if(main) {
+      let {width, height} = (main as HTMLElement).getBoundingClientRect();
+      if(width !== 0 && height !== 0) {
+        this.lastMainSize = {width, height}
+      }
+    }
+    return this.lastMainSize
+  }
+
   get mainSpectrumClasses() {
     // get these ahead of time to wire up reactivity even when main == undefined
     let hue = this.model.hue
     let lightness = this.model.lightness
 
-    let main = this.$refs.main
-    if(main == undefined) return {}
+    let {width, height} = this.mainSize()
+    if(width === 0 || height === 0) return {}
 
-    let {width, height} = (main as HTMLElement).getBoundingClientRect();
     let x = hue / 360 * width
     let y = (1 - lightness) * height
 

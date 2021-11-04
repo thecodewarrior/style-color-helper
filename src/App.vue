@@ -23,17 +23,6 @@ export default class App extends Vue {
   hideFilters: boolean = false
   mounted() {
     this.model.addFilter(new ParameterizedFilter(filterRegistry["posterize"])).values[0] = 3
-    // let filter = this.model.addFilter(new ParameterizedFilter(filterRegistry["blend_normal"]))
-    // filter.values[0] = new vec3(1, 0, 1)
-
-    this.model.addFilter(new ParameterizedFilter(filterRegistry["brightness_contrast"]))
-    this.model.addFilter(new ParameterizedFilter(filterRegistry["brightness_contrast"]))
-    this.model.addFilter(new ParameterizedFilter(filterRegistry["brightness_contrast"]))
-    this.model.addFilter(new ParameterizedFilter(filterRegistry["brightness_contrast"]))
-    this.model.addFilter(new ParameterizedFilter(filterRegistry["brightness_contrast"]))
-    this.model.addFilter(new ParameterizedFilter(filterRegistry["brightness_contrast"]))
-    this.model.addFilter(new ParameterizedFilter(filterRegistry["brightness_contrast"]))
-    this.model.addFilter(new ParameterizedFilter(filterRegistry["brightness_contrast"]))
   }
 }
 </script>

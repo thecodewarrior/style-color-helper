@@ -24,8 +24,10 @@ export function zip(a: number | vec3 | vec4, b: number | vec3 | vec4, fn: (a: nu
     return new vec4(fn(a.r, b.r), fn(a.g, b.g), fn(a.b, b.b), fn(a.a, b.a))
   } else if(a instanceof vec3 && b instanceof vec3) {
     return new vec3(fn(a.r, b.r), fn(a.g, b.g), fn(a.b, b.b))
-  } else {
+  } else if(typeof a === 'number') {
     return fn(a as number, b as number)
+  } else {
+    return map(a, value => fn(value, b as number))
   }
 }
 

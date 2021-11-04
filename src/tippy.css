@@ -10,5 +10,17 @@
     stroke: var(--main-highlight);
     stroke-width: 2px;
 }
+.tippy-box[data-theme~='helper'] > .tippy-svg-arrow .arrow {
+    transform: translate(0, 2px);
+}
+.tippy-box[data-theme~='helper'][data-placement^="right"] > .tippy-svg-arrow > svg {
+    top: calc(50% - 4px);
+    right: 13px;
+}
+.tippy-box[data-theme~='helper'][data-placement^="left"] > .tippy-svg-arrow > svg {
+    top: calc(50% - 4px);
+    left: 13px;
+}
+
 .tippy-content {
 }

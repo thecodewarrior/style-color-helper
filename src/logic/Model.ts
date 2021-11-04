@@ -16,6 +16,13 @@ export default class Model {
     return this.filters[this.filters.length - 1]
   }
 
+  set rawColor(value) {
+    let hsl = value.hsl();
+    this.hue = hsl[0];
+    this.saturation = hsl[1];
+    this.lightness = hsl[2];
+  }
+
   get rawColor(): Color {
     return chroma.hsl(this.hue, this.saturation, this.lightness)
   }

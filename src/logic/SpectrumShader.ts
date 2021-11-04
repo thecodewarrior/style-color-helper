@@ -6,6 +6,7 @@ export default class SpectrumShader {
   hslAttribute!: number
   paramUniform!: WebGLUniformLocation
   visibilityUniform!: WebGLUniformLocation
+  shaderText!: string
 
   private _filterIds: string[] = []
   private pendingRebuild: boolean = true
@@ -42,8 +43,7 @@ export default class SpectrumShader {
 
   private rebuildShader(filterIds: string[]) {
     this.pendingRebuild = false
-    const vertex = `precision lowp float;
-
+    const vertex = `
 attribute vec4 position;
 attribute vec3 hsl;
 
@@ -54,6 +54,7 @@ void main(void) {
     vHsl = hsl;
 }`
     const fragment = SpectrumShader.generateFragmentSource(filterIds)
+    this.shaderText = fragment
     if(this.program)
       this.context.deleteProgram(this.program);
     this.program = this.createProgram(vertex, fragment);
@@ -80,6 +81,7 @@ void main(void) {
           "    color = clamp(color, 0., 1.);\n"
     }).join("");
 
+    // language=GLSL
     return `precision lowp float;
 
 uniform vec4 _p[${Math.max(parameterCount, 1)}];

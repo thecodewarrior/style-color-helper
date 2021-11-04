@@ -4,175 +4,186 @@ import {map, zip} from "@/logic/math/ops";
 
 export class vec4 {
   public constructor(v: number);
-  public constructor(r: number, g: number, b: number, a: number);
+  public constructor(x: number, y: number, z: number, w: number);
   public constructor(rgb: vec3, a: number);
   public constructor(rgba: vec4);
-  constructor(x: number | vec3 | vec4, y?: number, z?: number, w?: number) {
-    if(x instanceof vec4) {
-      this.r = x.r
-      this.g = x.g
-      this.b = x.b
-      this.a = x.a
+  public constructor(rgba: [number, number, number, number]);
+  constructor(x: number | vec3 | vec4 | [number, number, number, number], y?: number, z?: number, w?: number) {
+    if(Array.isArray(x)) {
+      this.x = x[0]
+      this.y = x[1]
+      this.z = x[2]
+      this.w = x[3]
+    } else if(x instanceof vec4) {
+      this.x = x.r
+      this.y = x.g
+      this.z = x.b
+      this.w = x.a
     } else if(x instanceof vec3) {
-      this.r = x.r
-      this.g = x.g
-      this.b = x.b
-      this.a = y!
+      this.x = x.r
+      this.y = x.g
+      this.z = x.b
+      this.w = y!
     } else if(y === undefined) {
-      this.r = x
-      this.g = x
-      this.b = x
-      this.a = x
+      this.x = x
+      this.y = x
+      this.z = x
+      this.w = x
     } else {
-      this.r = x
-      this.g = y
-      this.b = z!
-      this.a = w!
+      this.x = x
+      this.y = y
+      this.z = z!
+      this.w = w!
     }
   }
 
-  public r: number
-  public g: number
-  public b: number
-  public a: number
+  public x: number
+  public y: number
+  public z: number
+  public w: number
+  public get xyz(): vec3 {
+    return new vec3(this.x, this.y, this.z)
+  }
+  public set xyz(value: vec3) {
+    this.x = value.x
+    this.y = value.y
+    this.z = value.z
+  }
   public get rgb(): vec3 {
-    return new vec3(this.r, this.g, this.b)
+    return this.xyz
   }
   public set rgb(value: vec3) {
-    this.r = value.r
-    this.g = value.g
-    this.b = value.b
+    this.xyz = value
   }
-  public get rgba(): vec4 {
+  public get xyzw(): vec4 {
     return new vec4(this)
   }
+  public set xyzw(value: vec4) {
+    this.x = value.x
+    this.y = value.y
+    this.z = value.z
+    this.w = value.w
+  }
+  public get rgba(): vec4 {
+    return this.xyzw
+  }
   public set rgba(value: vec4) {
-    this.r = value.r
-    this.g = value.g
-    this.b = value.b
-    this.a = value.a
+    this.xyzw = value
   }
-  public get x(): number {
-    return this.r
+  public get r(): number {
+    return this.x
   }
-  public set x(value: number) {
-    this.r = value
+  public set r(value: number) {
+    this.x = value
   }
-  public get y(): number {
-    return this.g
+  public get g(): number {
+    return this.y
   }
-  public set y(value: number) {
-    this.g = value
+  public set g(value: number) {
+    this.y = value
   }
-  public get z(): number {
-    return this.b
+  public get b(): number {
+    return this.z
   }
-  public set z(value: number) {
-    this.b = value
+  public set b(value: number) {
+    this.z = value
   }
-  public get w(): number {
-    return this.a
+  public get a(): number {
+    return this.w
   }
-  public set w(value: number) {
-    this.a = value
+  public set a(value: number) {
+    this.w = value
   }
 
   public plus(other: vec4 | vec3): vec4 {
-    if(other instanceof vec4)
-      return zip(this, other, (a, b) => a + b)
-    else
-      return zip(this, new vec4(other, 0), (a, b) => a + b)
+    let x = other instanceof vec3 ? new vec4(other, 0) : other
+    return zip(this, x, (a, b) => a + b)
   }
   public minus(other: vec4 | vec3): vec4 {
-    if(other instanceof vec4)
-      return zip(this, other, (a, b) => a - b)
-    else
-      return zip(this, new vec4(other, 0), (a, b) => a - b)
+    let x = other instanceof vec3 ? new vec4(other, 0) : other
+    return zip(this, x, (a, b) => a - b)
   }
   public times(other: vec4 | vec3 | number): vec4 {
-    if(other instanceof vec4)
-      return zip(this, other, (a, b) => a * b)
-    else if(other instanceof vec3)
-      return zip(this, new vec4(other, 1), (a, b) => a * b)
-    else
-      return map(this, (v) => v * other)
+    let x = typeof other === 'number' ? other : other instanceof vec3 ? new vec4(other, 0) : other
+    return zip(this, x, (a, b) => a * b) as vec4
   }
   public div(other: vec4 | vec3 | number): vec4 {
-    if(other instanceof vec4)
-      return zip(this, other, (a, b) => a / b)
-    else if(other instanceof vec3)
-      return zip(this, new vec4(other, 1), (a, b) => a / b)
-    else
-      return map(this, (v) => v / other)
+    let x = typeof other === 'number' ? other : other instanceof vec3 ? new vec4(other, 0) : other
+    return zip(this, x, (a, b) => a / b) as vec4
   }
 }
 
 export class vec3 {
   public constructor(v: number);
-  public constructor(r: number, g: number, b: number);
+  public constructor(x: number, y: number, z: number);
   public constructor(rgb: vec3);
-  constructor(x: number | vec3, y?: number, z?: number) {
-    if(x instanceof vec3) {
-      this.r = x.r
-      this.g = x.g
-      this.b = x.b
+  public constructor(rgb: [number, number, number]);
+  constructor(x: number | vec3 | [number, number, number], y?: number, z?: number) {
+    if(Array.isArray(x)) {
+      this.x = x[0]
+      this.y = x[1]
+      this.z = x[2]
+    } else if(x instanceof vec3) {
+      this.x = x.r
+      this.y = x.g
+      this.z = x.b
     } else if(y === undefined) {
-      this.r = x
-      this.g = x
-      this.b = x
+      this.x = x
+      this.y = x
+      this.z = x
     } else {
-      this.r = x
-      this.g = y
-      this.b = z!
+      this.x = x
+      this.y = y
+      this.z = z!
     }
   }
 
-  public r: number
-  public g: number
-  public b: number
-  public get rgb(): vec3 {
+  public x: number
+  public y: number
+  public z: number
+  public get xyz(): vec3 {
     return new vec3(this)
   }
+  public set xyz(value: vec3) {
+    this.x = value.x
+    this.y = value.y
+    this.z = value.z
+  }
+  public get rgb(): vec3 {
+    return this.xyz
+  }
   public set rgb(value: vec3) {
-    this.r = value.r
-    this.g = value.g
-    this.b = value.b
+    this.xyz = value
   }
-  public get x(): number {
-    return this.r
+  public get r(): number {
+    return this.x
   }
-  public set x(value: number) {
-    this.r = value
+  public set r(value: number) {
+    this.x = value
   }
-  public get y(): number {
-    return this.g
+  public get g(): number {
+    return this.y
   }
-  public set y(value: number) {
-    this.g = value
+  public set g(value: number) {
+    this.y = value
   }
-  public get z(): number {
-    return this.b
+  public get b(): number {
+    return this.z
   }
-  public set z(value: number) {
-    this.b = value
+  public set b(value: number) {
+    this.z = value
   }
 
-  public plus(other: vec3): vec3 {
-    return zip(this, other, (a, b) => a + b)
+  public plus(other: vec3 | number): vec3 {
+    return zip(this, other, (a, b) => a + b) as vec3
   }
-  public minus(other: vec3): vec3 {
-    return zip(this, other, (a, b) => a - b)
+  public minus(other: vec3 | number): vec3 {
+    return zip(this, other, (a, b) => a - b) as vec3
   }
   public times(other: vec3 | number): vec3 {
-    if(other instanceof vec3)
-      return zip(this, other, (a, b) => a * b)
-    else
-      return map(this, (v) => v * other)
+    return zip(this, other, (a, b) => a * b) as vec3
   }
   public div(other: vec3 | number): vec3 {
-    if(other instanceof vec3)
-      return zip(this, other, (a, b) => a / b)
-    else
-      return map(this, (v) => v / other)
+    return zip(this, other, (a, b) => a / b) as vec3
   }
 }
