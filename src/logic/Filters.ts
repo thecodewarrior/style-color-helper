@@ -41,7 +41,7 @@ export const filterTypes: Filter[] = [
       {name: "Levels", type: "number", default: 5, min: 2, max: 255, step: 1}
     ],
     vectorize(factor: number) {
-      return [new vec4(factor, factor - 1, 0, 0)]
+      return [new vec4(factor + 0.0001, factor + 0.0001 - 1, 0, 0)]
     },
     apply(color: vec3, factor: vec4) {
       return floor(color.times(factor.x)).div(factor.y);
