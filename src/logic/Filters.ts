@@ -1,6 +1,7 @@
 import {vec3, vec4} from "@/logic/math/vec";
 import {Filter} from "@/logic/Filter";
-import {clamp, floor, hsl2rgb, rgb2hsl} from "@/logic/math/ops";
+import {clamp, floor} from "@/logic/math/ops";
+import {hsl2rgb, rgb2hsl} from "@/logic/math/hsl";
 
 // complete:
 //  - posterize
