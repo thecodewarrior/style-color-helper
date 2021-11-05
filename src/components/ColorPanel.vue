@@ -45,9 +45,11 @@
           :hide-filters="hideFilters"
       />
     </div>
-    <div class="swatch" :style="[rawSwatchStyle, 'grid-area: original;']" v-tippy:original @click="copyOriginal">{{ model.rawColor.hex() }}</div>
+    <div class="swatch raw-swatch" :style="rawSwatchStyle" v-tippy:original>
+      #<div class="hex-editor" ref="hexEditor" contenteditable="true" spellcheck="false" @input="hexEditorChanged" @focus="hexEditorFocus" @blur="hexEditorBlur" @keydown="hexEditorKeydown"></div>
+    </div>
     <tippy target="original" trigger="manual" :visible="originalCopyVisible">Copied</tippy>
-    <div class="swatch" :style="[filteredSwatchStyle, 'grid-area: filtered;']" v-tippy:filtered @click="copyFiltered">{{ filteredColor.hex() }}</div>
+    <div class="swatch filtered-swatch" :style="filteredSwatchStyle" v-tippy:filtered @click="copyFiltered">{{ filteredColor.hex() }}</div>
     <tippy target="filtered" trigger="manual" :visible="filteredCopyVisible">Copied</tippy>
   </div>
 </template>
@@ -60,6 +62,7 @@ import chroma, {Color} from "chroma-js";
 import {PropType} from "vue";
 import Tippy from "@/lib/Tippy.vue";
 import {formatDecimal} from "@/utils";
+import {Watch} from "vue-property-decorator";
 
 @Options({
   components: {
@@ -78,6 +81,11 @@ export default class ColorPanel extends Vue {
   originalCopyTimeout: number = -1
   filteredCopyVisible: boolean = false
   filteredCopyTimeout: number = -1
+  hexEditorFocused: boolean = false
+
+  get hexEditorRef(): HTMLElement {
+    return this.$refs['hexEditor'] as HTMLElement
+  }
 
   get hueAxis(): number {
     return this.model.hue / 360
@@ -169,14 +177,60 @@ export default class ColorPanel extends Vue {
     }
   }
 
-  copyOriginal() {
-    navigator.clipboard.writeText(this.model.rawColor.hex().substring(1).toUpperCase()).then(() => {
-      this.originalCopyVisible = true
-      clearTimeout(this.originalCopyTimeout)
-      this.originalCopyTimeout = setTimeout(() => {
-        this.originalCopyVisible = false 
-      }, 750)
-    })
+  hexEditorFocus() {
+    this.hexEditorFocused = true
+
+    // https://stackoverflow.com/a/3806004
+    setTimeout(() => {
+      let sel, range;
+      if (window.getSelection && document.createRange) {
+        range = document.createRange();
+        range.selectNodeContents(this.hexEditorRef);
+        sel = window.getSelection()!;
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+    }, 1);
+  }
+
+  hexEditorBlur() {
+    this.hexEditorFocused = false
+  }
+
+  hexEditorChanged(event: InputEvent) {
+    let hex = (event.target as HTMLElement).innerText
+    if(chroma.valid(hex)) {
+      this.model.rawColor = chroma(hex)
+    }
+  }
+
+  hexEditorKeydown(event: KeyboardEvent) {
+    if(event.key == "Enter") {
+      event.preventDefault()
+      this.hexEditorRef.blur()
+    }
+  }
+
+  @Watch('hexEditorFocused')
+  focusChanged() {
+    if(!this.hexEditorFocused) {
+      this.updateHexEditorText()
+    }
+  }
+
+  @Watch('model.rawColor')
+  rawColorChanged() {
+    if(!this.hexEditorFocused) {
+      this.updateHexEditorText()
+    }
+  }
+
+  updateHexEditorText() {
+    this.hexEditorRef.innerText = this.model.rawColor.hex().substring(1)
+  }
+
+  mounted() {
+    this.updateHexEditorText()
   }
 
   copyFiltered() {
@@ -294,6 +348,20 @@ export default class ColorPanel extends Vue {
 
   border: var(--standard-border);
   border-radius: 20px;
+}
+
+.raw-swatch {
+  grid-area: original;
+  cursor: text;
+}
+
+.filtered-swatch {
+  grid-area: filtered;
+  cursor: default;
+}
+
+.hex-editor {
+  display: inline-block;
 }
 
 </style>
