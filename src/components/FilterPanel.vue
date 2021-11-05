@@ -87,7 +87,7 @@ import Model from "@/logic/Model";
 import {PropType} from "vue";
 import draggable from "vuedraggable";
 import ParameterEditor from "@/components/parameter/ParameterEditor.vue";
-import {filterRegistry, filterTypes} from "@/logic/Filters";
+import {filterRegistry, filterMenu} from "@/logic/Filters";
 import {ParameterizedFilter} from "@/logic/Filter";
 import NumberInput from "@/components/parameter/NumberInput.vue";
 import {vec3, vec4} from "@/logic/math/vec";
@@ -153,7 +153,7 @@ export default class FilterPanel extends Vue {
   }
 
   get addOptions() {
-    return filterTypes.map(value => ({name: value.name, id: value.id}))
+    return filterMenu.map(id => ({name: filterRegistry[id].name, id}))
   }
 
   swatchHex(color: vec3): string {

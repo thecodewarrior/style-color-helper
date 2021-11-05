@@ -9,7 +9,7 @@ import {hsl2rgb, rgb2hsl} from "@/logic/math/hsl";
 //
 // todo:
 //  # dani
-//  - normal
+//  + normal
 //  - multiply
 //  - additive
 //  - color burn
@@ -33,12 +33,15 @@ import {hsl2rgb, rgb2hsl} from "@/logic/math/hsl";
 //  - set lightness
 
 export const filterMenu: string[] = [
+  "posterize",
+  "brightness_contrast",
 
+  "blend_normal",
 ]
 
-export const filterTypes: Filter[] = [
+export const filterRegistry: Record<string, Filter> = {
   // artistic filters
-  {
+  "posterize": {
     id: "posterize",
     name: "Posterize",
     glsl: "color = floor(color * $0.x) / $0.y;",
@@ -52,7 +55,7 @@ export const filterTypes: Filter[] = [
       return floor(color.times(factor.x)).div(factor.y);
     }
   },
-  {
+  "brightness_contrast": {
     id: "brightness_contrast",
     name: "Brightness/contrast",
     glsl: `
@@ -104,7 +107,7 @@ color = hsl2rgb(hsl);
   },
 
   // blend modes
-  {
+  "blend_normal": {
     id: "blend_normal",
     name: "Blend Normal",
     glsl: "color = $0.rgb * $0.a + color * (1. - $0.a);",
@@ -119,10 +122,4 @@ color = hsl2rgb(hsl);
       return top.rgb.times(top.a).plus(color.times(1 - top.a));
     }
   },
-]
-
-let registry: Record<string, Filter> = {}
-for (let type of filterTypes) {
-  registry[type.id] = type
 }
-export const filterRegistry: Record<string, Filter> = registry
