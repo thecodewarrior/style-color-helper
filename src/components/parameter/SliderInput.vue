@@ -50,6 +50,7 @@ export default class SliderInput extends Vue {
   get numberControl(): NumberControl {
     return {
       name: '',
+      id: '',
       type: 'number',
       default: this.control.default,
       min: this.control.textMin === null ? undefined : this.control.textMin ?? this.control.min,
