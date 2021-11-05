@@ -8,7 +8,7 @@ export interface DragDelegate {
 
   moveTouch?(dx: number, dy: number): void
   dragTouch(x: number, y: number): void
-  touchEnd(x: number, y: number): void
+  touchEnd(): void
 }
 
 export const DragHandler = new (class {
@@ -54,9 +54,7 @@ export const DragHandler = new (class {
 
   private touchend(e: TouchEvent) {
     if(this.dragging) {
-      let touch = e.changedTouches[0]
-      const {x, y} = this.relative(touch.clientX, touch.clientY, this.dragging)
-      this.dragging?.touchEnd(x, y)
+      this.dragging?.touchEnd()
     }
     this.dragging = null
   }

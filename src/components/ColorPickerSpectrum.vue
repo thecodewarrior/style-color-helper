@@ -77,8 +77,7 @@ export default class ColorPickerSpectrum extends Vue implements DragDelegate {
     this.drag(x, y)
   }
 
-  touchEnd(x: number, y: number): void {
-    this.drag(x, y)
+  touchEnd(): void {
   }
 
   dragTouch(x: number, y: number) {
