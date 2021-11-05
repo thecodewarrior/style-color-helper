@@ -86,7 +86,6 @@ import {Options, Vue} from 'vue-class-component';
 import Model from "@/logic/Model";
 import {PropType} from "vue";
 import draggable from "vuedraggable";
-import ParameterEditor from "@/components/parameter/ParameterEditor.vue";
 import {filterRegistry, filterMenu} from "@/logic/Filters";
 import {ParameterizedFilter} from "@/logic/Filter";
 import NumberInput from "@/components/parameter/NumberInput.vue";
@@ -102,7 +101,6 @@ type PanelMode = 'filters' | 'add' | 'color'
     SliderInput,
     ColorPanel,
     NumberInput,
-    ParameterEditor,
     draggable
   },
   props: {
