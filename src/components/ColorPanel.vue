@@ -204,7 +204,7 @@ export default class ColorPanel extends Vue {
     })
   }
 
-  private static swatchStyle(color: Color) {
+  static swatchStyle(color: Color) {
     let whiteContrast = chroma.contrast('white', color)
     let blackContrast = chroma.contrast('black', color)
     return {

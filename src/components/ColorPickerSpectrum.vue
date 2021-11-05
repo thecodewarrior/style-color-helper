@@ -66,7 +66,7 @@ export default class ColorPickerSpectrum extends Vue implements DragDelegate {
   fractionalDrag: boolean = true
 
   get dragElement(): HTMLElement {
-    return this.$refs.cursorArea
+    return this.$refs.cursorArea as HTMLElement
   }
 
   dragEnd(x: number, y: number): void {
@@ -103,7 +103,7 @@ export default class ColorPickerSpectrum extends Vue implements DragDelegate {
   spectrumSize(): {width: number, height: number} {
     let main = this.$refs.spectrum
     if(main) {
-      let {width, height} = (main.$el as HTMLElement).getBoundingClientRect();
+      let {width, height} = ((main as Vue).$el as HTMLElement).getBoundingClientRect();
       if(width !== 0 && height !== 0) {
         this.lastSpectrumSize = {width, height}
       }
