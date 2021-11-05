@@ -36,15 +36,16 @@
       <div class="component-value">{{lightnessDisplay}}</div>
     </div>
     <tippy target="lightness" placement="right" :extra="{hideOnClick: false}">{{exactLightnessDisplay}}</tippy>
-    <div class="main-spectrum" ref="main" :class="mainSpectrumClasses" style="grid-area: main;">
-      <color-picker-spectrum
-          hue="x" :saturation="model.saturation" lightness="-y"
-          v-model:x="hueAxis" v-model:y="inverseLightness"
-          :render-width="3000" :render-height="1200"
-          :model="model"
-          :hide-filters="hideFilters"
-      />
-    </div>
+    <color-picker-spectrum
+        class="main-spectrum"
+        hue="x" :saturation="model.saturation" lightness="-y"
+        v-model:x="hueAxis" v-model:y="inverseLightness"
+        :render-width="3000" :render-height="1200"
+        :model="model"
+        :hide-filters="hideFilters"
+        :border="{radius: 20, width: 5, transition: '0.5s'}"
+        style="grid-area: main;"
+    />
     <div class="swatch raw-swatch" :style="rawSwatchStyle" v-tippy:original>
       #<div class="hex-editor" ref="hexEditor" contenteditable="true" spellcheck="false" @input="hexEditorChanged" @focus="hexEditorFocus" @blur="hexEditorBlur" @keydown="hexEditorKeydown"></div>
     </div>
@@ -71,6 +72,7 @@ import {Watch} from "vue-property-decorator";
   props: {
     model: {type: Object as PropType<Model>, required: true},
     hideFilters: {type: Boolean, default: false},
+    hideMainSpectrum: {type: Boolean, default: false},
   }
 })
 export default class ColorPanel extends Vue {
@@ -134,44 +136,6 @@ export default class ColorPanel extends Vue {
 
   get filteredSwatchStyle() {
     return ColorPanel.swatchStyle(this.filteredColor)
-  }
-
-  lastMainSize: {width: number, height: number} = {width: 0, height: 0}
-
-  mainSize(): {width: number, height: number} {
-    let main = this.$refs.main
-    if(main) {
-      let {width, height} = (main as HTMLElement).getBoundingClientRect();
-      if(width !== 0 && height !== 0) {
-        this.lastMainSize = {width, height}
-      }
-    }
-    return this.lastMainSize
-  }
-
-  get mainSpectrumClasses() {
-    // get these ahead of time to wire up reactivity even when main == undefined
-    let hue = this.model.hue
-    let lightness = this.model.lightness
-
-    let {width, height} = this.mainSize()
-    if(width === 0 || height === 0) return {}
-
-    let x = hue / 360 * width
-    let y = (1 - lightness) * height
-
-    let pad = 25;
-    let left = x < pad;
-    let right = width - x < pad;
-    let top = y < pad;
-    let bottom = height - y < pad;
-
-    return {
-      'collapse-top-left': top && left,
-      'collapse-bottom-left': bottom && left,
-      'collapse-top-right': top && right,
-      'collapse-bottom-right': bottom && right,
-    }
   }
 
   hexEditorFocus() {
@@ -254,7 +218,7 @@ export default class ColorPanel extends Vue {
 <style scoped>
 .color-panel {
   display: grid;
-  grid-template-rows: auto auto auto 1fr auto;
+  grid-template-rows: 35px 35px 35px 1fr auto;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-areas:
       "hue hue"
@@ -290,47 +254,7 @@ export default class ColorPanel extends Vue {
 
 .main-spectrum {
   margin-bottom: 10px;
-}
-
-.main-spectrum .color-picker-spectrum {
-  height: 100%;
-}
-
-.main-spectrum {
   border: var(--standard-border);
-  border-radius: 20px;
-  transition: border-radius 0.5s;
-}
-
-.main-spectrum >>> .spectrum {
-  border-radius: 15px;
-  transition: border-radius 0.5s;
-  overflow: hidden;
-}
-
-.main-spectrum.collapse-top-left >>> .spectrum {
-  border-top-left-radius: 0;
-}
-.main-spectrum.collapse-bottom-left >>> .spectrum {
-  border-bottom-left-radius: 0;
-}
-.main-spectrum.collapse-top-right >>> .spectrum {
-  border-top-right-radius: 0;
-}
-.main-spectrum.collapse-bottom-right >>> .spectrum {
-  border-bottom-right-radius: 0;
-}
-.main-spectrum.collapse-top-left {
-  border-top-left-radius: 1px;
-}
-.main-spectrum.collapse-bottom-left {
-  border-bottom-left-radius: 1px;
-}
-.main-spectrum.collapse-top-right {
-  border-top-right-radius: 1px;
-}
-.main-spectrum.collapse-bottom-right {
-  border-bottom-right-radius: 1px;
 }
 
 .swatch {

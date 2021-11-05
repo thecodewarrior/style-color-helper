@@ -292,9 +292,15 @@ export default class FilterPanel extends Vue {
 .color-header {
   display: grid;
   grid-auto-flow: row;
-  align-items: center;
   align-self: start;
-  gap: 10px;
+  justify-self: start;
+}
+@media (max-width: 700px) {
+  .color-mode {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 300px;
+    width: 315px;
+  }
 }
 
 .icon-button {
@@ -309,10 +315,10 @@ export default class FilterPanel extends Vue {
   width: 315px; /* +15 for scrollbar */
   flex-shrink: 1;
   overflow-y: scroll;
-  -webkit-scrollbar-color: var(--main-highlight) transparent;
-  -webkit-scrollbar-width: thin;
-  scrollbar-color: var(--main-highlight) transparent;
-  scrollbar-width: thin;
+  -webkit-scrollbar-color: var(--standard-scroll-color);
+  -webkit-scrollbar-width: var(--standard-scroll-width);
+  scrollbar-color: var(--standard-scroll-color);
+  scrollbar-width: var(--standard-scroll-width);
 }
 
 .body-scroll > * {
