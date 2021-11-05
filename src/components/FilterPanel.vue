@@ -97,9 +97,9 @@
       <div class="body-scroll">
         <div class="saved-list">
           <template v-for="name in savedNames" :key="name">
-            <div class="icon-button" @click="deleteSaved(name)"><fa icon="trash-alt"/></div>
-            <div class="">{{name}}</div>
             <div class="icon-button" @click="loadSaved(name)"><fa icon="folder-open"/></div>
+            <div class="">{{name}}</div>
+            <div class="icon-button" @click="deleteSaved(name)"><fa icon="trash-alt"/></div>
           </template>
         </div>
       </div>
