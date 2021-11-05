@@ -40,7 +40,7 @@
         class="main-spectrum"
         hue="x" :saturation="model.saturation" lightness="-y"
         v-model:x="hueAxis" v-model:y="inverseLightness"
-        :render-width="3000" :render-height="1200"
+        :render-width="300" :render-height="100"
         :model="model"
         :hide-filters="hideFilters"
         :border="{radius: 20, width: 5, transition: '0.5s'}"
