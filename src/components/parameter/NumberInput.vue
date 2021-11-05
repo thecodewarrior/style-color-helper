@@ -16,6 +16,7 @@
 import { Options, Vue } from 'vue-class-component';
 import {NumberControl} from "@/logic/Filter";
 import {PropType} from "vue";
+import {formatDecimal, roundDecimals} from "@/utils";
 
 @Options({
   components: {},
@@ -44,7 +45,7 @@ export default class NumberInput extends Vue {
   }
 
   get inputMode() {
-    return this.control.integer ? 'numeric' : 'decimal';
+    return this.control.precision == 0 ? 'numeric' : 'decimal';
   }
 
   valueChanged() {
@@ -53,9 +54,9 @@ export default class NumberInput extends Vue {
   }
 
   stateChanged() {
-    let pattern = this.control.integer ? NumberInput.int_regex : NumberInput.float_regex
+    let pattern = this.control.precision == 0 ? NumberInput.int_regex : NumberInput.float_regex
     this.valid = pattern.test(this.state)
-    let value = parseFloat(this.state)
+    let value = roundDecimals(parseFloat(this.state), this.control.precision)
     this.valid &&= this.boundsCheck(value)
     if(!this.valid)
       return
@@ -65,7 +66,7 @@ export default class NumberInput extends Vue {
   stepDown() {
     let step = this.control.step
     if(step === undefined) return
-    let value = this.value - step
+    let value = roundDecimals(this.value - step, this.control.precision)
     if(this.boundsCheck(value))
       this.$emit('input', value)
   }
@@ -73,7 +74,7 @@ export default class NumberInput extends Vue {
   stepUp() {
     let step = this.control.step
     if(step === undefined) return
-    let value = this.value + step
+    let value = roundDecimals(this.value + step, this.control.precision)
     if(this.boundsCheck(value))
       this.$emit('input', value)
   }
@@ -101,7 +102,7 @@ export default class NumberInput extends Vue {
   }
 
   private updateState() {
-    this.state = `${this.value}`
+    this.state = formatDecimal(this.value, this.control.precision)
   }
 
   static float_regex = /^\s*-?(?:\d*\.\d+|\d+\.\d*|\d+)\s*$/

@@ -37,6 +37,10 @@ export function max<T extends V>(a: T, b: T): T {
   return zip(a, b, (a, b) => Math.max(a, b));
 }
 
+export function mix<T extends V>(x: T, y: T, a: number): T {
+  return zip(x, y, (x, y) => x * (1 - a) + y * a);
+}
+
 export function clamp<T extends V>(v: T, min: T | number, max: T | number): T {
   if(min instanceof vec3 || min instanceof vec3) { // component-wise
     let clamped = v;

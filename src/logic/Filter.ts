@@ -4,12 +4,13 @@ import VueStore from "vue-class-store";
 
 export type NumberControl = {
   name: string, type: "number", default: number,
-  min?: number, max?: number, step?: number, integer?: boolean
+  min?: number, max?: number, step?: number, precision: number
 }
 export type SliderControl = {
   name: string, type: "slider", default: number,
   min: number, max: number, snap: number | 'any', step: number,
-  precision: number, suffix?: string
+  precision: number, suffix?: string,
+  textMin?: number | null, textMax?: number | null,
 }
 export type ColorControl = {
   name: string, type: "color", default: vec3
@@ -21,7 +22,7 @@ export type ControlValue = number | vec3 | vec4
 /**
  * A filter definition
  */
-export type Filter = {
+export interface Filter {
   id: string,
   name: string,
   /**

@@ -52,10 +52,10 @@ export default class SliderInput extends Vue {
       name: '',
       type: 'number',
       default: this.control.default,
-      min: this.control.min,
-      max: this.control.max,
+      min: this.control.textMin === null ? undefined : this.control.textMin ?? this.control.min,
+      max: this.control.textMax === null ? undefined : this.control.textMax ?? this.control.max,
       step: this.control.step,
-      integer: this.control.precision === 0,
+      precision: this.control.precision,
     }
   }
 
