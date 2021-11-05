@@ -1,8 +1,9 @@
-
-// language=GLSL
 import {vec3} from "@/logic/math/vec";
 import {min as minOp, max as maxOp} from "@/logic/math/ops";
 
+// https://stackoverflow.com/a/9493060
+
+// language=GLSL
 export const hsl2rgb_glsl = `
     float hue2rgb(float p, float q, float t) {
         if(t < 0.) t += 1.;
@@ -63,18 +64,19 @@ export const rgb2hsl_glsl = `
         float min = min(c.r, min(c.g, c.b));
         float max = max(c.r, max(c.g, c.b));
         float l = (max + min) / 2.;
-        float s = 0., h = 0.;
+        float s, h = 0.;
 
-        if(max != min) {
-            s = l < 0.5 ? (max - min) / (max + min) : (max - min) / (2. - max - min);
+        if(max == min) {
+            h = s = 0.; // achromatic
+        } else {
+            float d = max - min;
+            s = l > 0.5 ? d / (2. - max - min) : d / (max + min);
+            if(c.r == max) h = (c.g - c.b) / d + (c.g < c.b ? 6. : 0.);
+            else if(c.g == max) h = (c.b - c.r) / d + 2.;
+            else if(c.b == max) h = (c.r - c.g) / d + 4.;
+            h /= 6.;
         }
 
-        if(c.r == max) h = (c.g - c.b) / (max - min);
-        else if(c.g == max) h = 2. + (c.b - c.r) / (max - min);
-        else if(c.b == max) h = 4. + (c.r - c.g) / (max - min);
-
-        h *= 60.;
-        if(h < 0.) h += 360.;
         return vec3(h, s, l);
     }
 `
@@ -83,17 +85,18 @@ export function rgb2hsl(c: vec3): vec3 {
   let min = minOp(c.r, minOp(c.g, c.b));
   let max = maxOp(c.r, maxOp(c.g, c.b));
   let l = (max + min) / 2.;
-  let s = 0., h = 0.;
+  let s, h = 0.;
 
-  if(max != min) {
-    s = l < 0.5 ? (max - min) / (max + min) : (max - min) / (2. - max - min);
+  if(max == min) {
+    h = s = 0.; // achromatic
+  } else {
+    let d = max - min;
+    s = l > 0.5 ? d / (2. - max - min) : d / (max + min);
+    if(c.r == max) h = (c.g - c.b) / d + (c.g < c.b ? 6. : 0.);
+    else if(c.g == max) h = (c.b - c.r) / d + 2.;
+    else if(c.b == max) h = (c.r - c.g) / d + 4.;
+    h /= 6.;
   }
 
-  if(c.r == max) h = (c.g - c.b) / (max - min);
-  else if(c.g == max) h = 2. + (c.b - c.r) / (max - min);
-  else if(c.b == max) h = 4. + (c.r - c.g) / (max - min);
-
-  h *= 60.;
-  if(h < 0.) h += 360.;
   return new vec3(h, s, l);
 }
