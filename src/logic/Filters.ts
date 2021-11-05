@@ -62,7 +62,7 @@ export const filterRegistry: Record<string, Filter> = {
     name: "Posterize",
     glsl: "color = floor(color * $0.x) / $0.y;",
     controls: [
-      {name: "Levels", type: "number", default: 5, min: 2, max: 255, step: 1, precision: 0}
+      {name: "Levels", id: "levels", type: "number", default: 5, min: 2, max: 255, step: 1, precision: 0}
     ],
     vectorize(factor: number) {
       return [new vec4(factor + 0.0001, factor + 0.0001 - 1, 0, 0)]
@@ -94,8 +94,8 @@ hsl.z = clamp(x, 0., 1.);
 color = hsl2rgb(hsl);
 `,
     controls: [
-      {name: "Brightness", type: "slider", default: 0.0, min: -1, max: 1, snap: 'any', step: 0.05, precision: 2},
-      {name: "Contrast", type: "slider", default: 0.0, min: -1, max: 1, snap: 'any', step: 0.05, precision: 2},
+      {name: "Brightness", id: "brightness", type: "slider", default: 0.0, min: -1, max: 1, snap: 'any', step: 0.05, precision: 2},
+      {name: "Contrast", id: "contrast", type: "slider", default: 0.0, min: -1, max: 1, snap: 'any', step: 0.05, precision: 2},
     ],
     vectorize(brightness: number, contrast: number) {
       return [new vec4(brightness, contrast, 0, 0)]
@@ -134,9 +134,9 @@ hsl = clamp(hsl, 0., 1.);
 color = hsl2rgb(hsl);
 `,
     controls: [
-      {name: "Hue", type: "slider", default: 0.0, min: -180, max: 180, snap: 'any', step: 1, precision: 2},
-      {name: "Saturation", type: "slider", default: 0.0, min: -1, max: 1, snap: 'any', step: 0.05, precision: 2},
-      {name: "Lightness", type: "slider", default: 0.0, min: -1, max: 1, snap: 'any', step: 0.05, precision: 2},
+      {name: "Hue", id: "hue", type: "slider", default: 0.0, min: -180, max: 180, snap: 'any', step: 1, precision: 2},
+      {name: "Saturation", id: "saturation", type: "slider", default: 0.0, min: -1, max: 1, snap: 'any', step: 0.05, precision: 2},
+      {name: "Lightness", id: "lightness", type: "slider", default: 0.0, min: -1, max: 1, snap: 'any', step: 0.05, precision: 2},
     ],
     vectorize(hue: number, saturation: number, lightness: number) {
       return [new vec4(hue / 360, saturation, lightness, 0)]
@@ -161,9 +161,9 @@ hsl = clamp(hsl, 0., 1.);
 color = hsl2rgb(hsl);
 `,
     controls: [
-      {name: "Hue", type: "number", default: 1.0, min: -360, max: 360, step: 0.05, precision: 2},
-      {name: "Saturation", type: "slider", default: 1.0, min: 0, max: 3, snap: 'any', step: 0.05, precision: 2, textMax: null},
-      {name: "Lightness", type: "slider", default: 1.0, min: 0, max: 3, snap: 'any', step: 0.05, precision: 2, textMax: null},
+      {name: "Hue", id: "hue", type: "number", default: 1.0, min: -360, max: 360, step: 0.05, precision: 2},
+      {name: "Saturation", id: "saturation", type: "slider", default: 1.0, min: 0, max: 3, snap: 'any', step: 0.05, precision: 2, textMax: null},
+      {name: "Lightness", id: "lightness", type: "slider", default: 1.0, min: 0, max: 3, snap: 'any', step: 0.05, precision: 2, textMax: null},
     ],
     vectorize(hue: number, saturation: number, lightness: number) {
       return [new vec4(hue, saturation, lightness, 0)]
@@ -338,7 +338,7 @@ color = hsl2rgb(hsl);
     name: "Negation",
     glsl: "color = mix(color, vec3(1) - color, $0.x);",
     controls: [
-      {name: "Blend", type: "slider", default: 100, min: 0, max: 100, snap: 1, step: 1, precision: 0, suffix: '%'},
+      {name: "Blend", id: "blend", type: "slider", default: 100, min: 0, max: 100, snap: 1, step: 1, precision: 0, suffix: '%'},
     ],
     vectorize(blend: number) {
       return [new vec4(blend / 100, 0, 0, 0)]
@@ -405,8 +405,8 @@ function blend(options: BlendOptions): Filter {
     name: options.name,
     glsl: blend_glsl(options.glsl),
     controls: [
-      {name: "Color", type: "color", default: options.defaultColor},
-      {name: "Opacity", type: "slider", default: options.defaultAlpha, min: 0, max: 100, snap: 1, step: 1, precision: 0, suffix: '%'},
+      {name: "Color", id: "color", type: "color", default: options.defaultColor},
+      {name: "Opacity", id: "opacity", type: "slider", default: options.defaultAlpha, min: 0, max: 100, snap: 1, step: 1, precision: 0, suffix: '%'},
     ],
     vectorize(color: vec3, opacity: number) {
       return [new vec4(color, opacity / 100)]

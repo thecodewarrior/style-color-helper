@@ -3,17 +3,17 @@ import {guid} from "@/utils";
 import VueStore from "vue-class-store";
 
 export type NumberControl = {
-  name: string, type: "number", default: number,
+  name: string, id: string, type: "number", default: number,
   min?: number, max?: number, step?: number, precision: number
 }
 export type SliderControl = {
-  name: string, type: "slider", default: number,
+  name: string, id: string, type: "slider", default: number,
   min: number, max: number, snap: number | 'any', step: number,
   precision: number, suffix?: string,
   textMin?: number | null, textMax?: number | null,
 }
 export type ColorControl = {
-  name: string, type: "color", default: vec3
+  name: string, id: string, type: "color", default: vec3
 }
 
 export type FilterControl = NumberControl | SliderControl | ColorControl

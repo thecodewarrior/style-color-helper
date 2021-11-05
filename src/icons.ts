@@ -1,8 +1,17 @@
 import {library} from '@fortawesome/fontawesome-svg-core'
 import {
   faArrowLeft,
-  faEye, faEyeSlash,
-  faGripLines, faICursor, faMinus, faMinusCircle, faPlus, faSlidersH, faTimes,
+  faEye,
+  faEyeSlash,
+  faFolder, faFolderOpen,
+  faGripLines,
+  faICursor,
+  faMinus,
+  faMinusCircle,
+  faPlus,
+  faSave,
+  faSlidersH,
+  faTimes, faTrashAlt,
 } from '@fortawesome/free-solid-svg-icons'
 
 export function initIcons() {
@@ -17,5 +26,9 @@ export function initIcons() {
       faArrowLeft,
       faSlidersH,
       faICursor,
+      faFolder,
+      faFolderOpen,
+      faSave,
+      faTrashAlt,
   )
 }

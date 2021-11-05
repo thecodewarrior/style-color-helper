@@ -48,7 +48,6 @@
     <div class="swatch raw-swatch" :style="rawSwatchStyle" v-tippy:original>
       #<div class="hex-editor" ref="hexEditor" contenteditable="true" spellcheck="false" @input="hexEditorChanged" @focus="hexEditorFocus" @blur="hexEditorBlur" @keydown="hexEditorKeydown"></div>
     </div>
-    <tippy target="original" trigger="manual" :visible="originalCopyVisible">Copied</tippy>
     <div class="swatch filtered-swatch" :style="filteredSwatchStyle" v-tippy:filtered @click="copyFiltered">{{ filteredColor.hex() }}</div>
     <tippy target="filtered" trigger="manual" :visible="filteredCopyVisible">Copied</tippy>
   </div>
@@ -77,8 +76,6 @@ import {Watch} from "vue-property-decorator";
 export default class ColorPanel extends Vue {
   model!: Model
   hideFilters!: boolean
-  originalCopyVisible: boolean = false
-  originalCopyTimeout: number = -1
   filteredCopyVisible: boolean = false
   filteredCopyTimeout: number = -1
   hexEditorFocused: boolean = false

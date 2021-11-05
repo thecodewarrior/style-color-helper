@@ -2,11 +2,15 @@
   <div class="filter-panel">
     <div v-show="mode === 'filters'" class="panel-mode">
       <div class="panel-header">
-        <div class="icon-button" @click="mode = 'add'">
+        <div class="icon-button" style="grid-area: L1;" @click="mode = 'add'">
           <fa icon="plus"/>
         </div>
-        <div class="icon-button" @click="$emit('update:hideFilters', !hideFilters)">
+        <div class="icon-button" style="grid-area: L2;" @click="$emit('update:hideFilters', !hideFilters)">
           <fa :icon="hideFilters ? 'eye-slash' : 'eye'"/>
+        </div>
+        <div class="name" style="grid-area: name;">{{model.name}}</div>
+        <div class="icon-button" style="grid-area: R1;" @click="mode = 'save'">
+          <fa icon="folder"/>
         </div>
       </div>
       <div class="body-scroll">
@@ -56,7 +60,7 @@
 
     <div v-show="mode === 'add'" class="panel-mode">
       <div class="panel-header">
-        <div class="icon-button" @click="mode = 'filters'">
+        <div class="icon-button" style="grid-area: L1;" @click="mode = 'filters'">
           <fa icon="times"/>
         </div>
       </div>
@@ -72,11 +76,39 @@
 
     <div v-show="mode === 'color'" class="color-mode">
       <div class="color-header">
-        <div class="icon-button" @click="closeColor">
+        <div class="icon-button" style="grid-area: L1;" @click="closeColor">
           <fa icon="arrow-left"/>
         </div>
       </div>
       <color-panel class="color-picker" :model="subModel" :hide-filters="true"/>
+    </div>
+
+    <div v-show="mode === 'save'" class="panel-mode save-panel">
+      <div class="panel-header">
+        <div class="icon-button" style="grid-area: R1;" @click="mode = 'filters'">
+          <fa icon="times"/>
+        </div>
+        <div class="name" style="grid-area: name;">{{model.name}}</div>
+      </div>
+      <div class="save-top-controls">
+        <input type="text" ref="clipboardField" v-tippy:paste @focus="clipboardFieldFocus" @change="loadClipboard($event.target.value)"/>
+        <tippy target="paste" trigger="manual" :visible="pasteVisible" placement="top">{{ pasteStatus }}</tippy>
+      </div>
+      <div class="body-scroll">
+        <div class="saved-list">
+          <template v-for="name in savedNames" :key="name">
+            <div class="icon-button" @click="deleteSaved(name)"><fa icon="trash-alt"/></div>
+            <div class="">{{name}}</div>
+            <div class="icon-button" @click="loadSaved(name)"><fa icon="folder-open"/></div>
+          </template>
+        </div>
+      </div>
+      <div class="save-bottom-controls">
+        <input type="text" v-model="model.name"/>
+        <div class="icon-button" @click="saveLocal">
+          <fa icon="save"/>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -93,11 +125,14 @@ import {vec3, vec4} from "@/logic/math/vec";
 import chroma, {Color} from "chroma-js";
 import ColorPanel from "@/components/ColorPanel.vue";
 import SliderInput from "@/components/parameter/SliderInput.vue";
+import Tippy from "@/lib/Tippy.vue";
+import {Watch} from "vue-property-decorator";
 
-type PanelMode = 'filters' | 'add' | 'color'
+type PanelMode = 'filters' | 'add' | 'color' | 'save'
 
 @Options({
   components: {
+    Tippy,
     SliderInput,
     ColorPanel,
     NumberInput,
@@ -119,6 +154,15 @@ export default class FilterPanel extends Vue {
   mode: PanelMode = 'filters'
   subModel: Model = new Model()
   colorParameter: [ParameterizedFilter, number] | null = null
+  savedNames: string[] = []
+
+  pasteVisible: boolean = false
+  pasteTimeout: number = -1
+  pasteStatus: string = "Pasted"
+
+  get clipboardField(): HTMLInputElement {
+    return this.$refs['clipboardField'] as HTMLInputElement
+  }
 
   removeFilter(idx: number) {
     this.model.filters.splice(idx, 1);
@@ -167,6 +211,53 @@ export default class FilterPanel extends Vue {
       'background-color': color.hex()
     }
   }
+
+  @Watch('mode')
+  modeChanged() {
+    if(this.mode === 'save') {
+      this.clipboardField.value = JSON.stringify(this.model.saveFilters())
+      this.loadNames()
+    }
+  }
+
+  clipboardFieldFocus() {
+    this.clipboardField.setSelectionRange(0, this.clipboardField.value.length)
+  }
+
+  loadClipboard(text: string) {
+    let success = this.model.loadFilters(JSON.parse(text))
+    this.pasteStatus = success ? 'Loaded' : 'Invalid'
+    this.pasteVisible = true
+    clearTimeout(this.pasteTimeout)
+    this.pasteTimeout = setTimeout(() => {
+      this.pasteVisible = false
+    }, 2000)
+  }
+
+  loadSaved(name: string) {
+    let local = JSON.parse(localStorage.getItem("saved") ?? "{}")
+    this.model.loadFilters(local[name])
+    this.mode = 'filters'
+  }
+
+  deleteSaved(name: string) {
+    let local = JSON.parse(localStorage.getItem("saved") ?? "{}")
+    delete local[name]
+    localStorage.setItem("saved", JSON.stringify(local))
+    this.loadNames()
+  }
+
+  loadNames() {
+    let json = JSON.parse(localStorage.getItem("saved") ?? "{}")
+    this.savedNames = Object.keys(json).sort()
+  }
+
+  saveLocal() {
+    let local = JSON.parse(localStorage.getItem("saved") ?? "{}")
+    local[this.model.name] = this.model.saveFilters()
+    localStorage.setItem("saved", JSON.stringify(local))
+    this.loadNames()
+  }
 }
 </script>
 
@@ -182,9 +273,11 @@ export default class FilterPanel extends Vue {
 }
 .panel-header {
   display: grid;
-  grid-auto-flow: column;
+  width: 300px;
+  grid-template-columns: 1.5em 1.5em 1fr 1.5em 1.5em;
+  grid-template-areas: 'L1 L2 name R2 R1';
   align-items: center;
-  align-self: start;
+  justify-items: center;
   gap: 10px;
 }
 
@@ -280,5 +373,33 @@ export default class FilterPanel extends Vue {
   display: inline-block;
   padding: 2px 8px;
   border-radius: 20px;
+}
+
+.save-panel {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto 1fr auto;
+}
+
+.save-top-controls, .save-bottom-controls {
+  display: grid;
+  width: 300px;
+  grid-template-columns: 1fr 1.5em;
+  grid-gap: 10px;
+}
+
+input[type="text"] {
+  font: inherit;
+  color: inherit;
+  background: var(--alt-background);
+  border: 2px solid var(--main-border);
+  box-sizing: border-box;
+}
+
+.saved-list {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 5px 10px;
+  align-items: center;
 }
 </style>

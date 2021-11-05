@@ -1,11 +1,14 @@
 import VueStore from "vue-class-store";
-import {ParameterizedFilter} from "@/logic/Filter";
+import {ControlValue, FilterControl, ParameterizedFilter} from "@/logic/Filter";
 import chroma, {Color} from "chroma-js";
-import {vec3} from "@/logic/math/vec";
+import {vec3, vec4} from "@/logic/math/vec";
 import {clamp} from "@/logic/math/ops";
+import {roundDecimals} from "@/utils";
+import {filterRegistry} from "@/logic/Filters";
 
 @VueStore
 export default class Model {
+  public name: string = "Unnamed"
   public filters: ParameterizedFilter[] = []
   public hue = 30
   public saturation = 1
@@ -37,5 +40,86 @@ export default class Model {
       color = clamp(color, 0, 1)
     }
     return chroma.gl(color.r, color.g, color.b)
+  }
+
+  saveFilters(): object {
+    let filters = this.filters.map((filter) => {
+      let args: Record<string, any> = {}
+      for(let i = 0; i < filter.parameters.length; i++) {
+        let parameter = filter.parameters[i]
+        let value = filter.values[i]
+        switch(parameter.type) {
+          case "color": {
+            let v = value as vec4
+            let color = chroma.gl(v.r, v.g, v.b, v.a)
+            args[parameter.id] = color.hex("rgb")
+            break;
+          }
+          case "number": {
+            let v = value as number
+            args[parameter.id] = roundDecimals(v, parameter.precision)
+            break;
+          }
+          case "slider": {
+            let v = value as number
+            args[parameter.id] = roundDecimals(v, parameter.precision)
+            break;
+          }
+        }
+      }
+      return {
+        id: filter.filter.id,
+        args
+      }
+    })
+
+    return {
+      name: this.name,
+      filters
+    }
+  }
+
+  loadFilters(json: Record<string, any>): boolean {
+    if(typeof json.name !== 'string' || !Array.isArray(json.filters)) {
+      return false
+    }
+    let filters: ParameterizedFilter[] = []
+    for(let data of json.filters as Record<string, any>[]) {
+      if(typeof data.id !== 'string' || !data.args) return false
+
+      let filter = filterRegistry[data.id]
+      if(!filter) return false
+
+      let values: ControlValue[] = []
+      for(let param of filter.controls) {
+        let value = data.args[param.id]
+        if(value === undefined) return false
+
+        switch(param.type) {
+          case "color": {
+            if (!chroma.valid(value)) return false
+            let color = chroma(value)
+            values.push(new vec4(...color.gl()))
+            break;
+          }
+          case "number": {
+            if(typeof value !== "number") return false
+            values.push(value)
+            break;
+          }
+          case "slider": {
+            if(typeof value !== "number") return false
+            values.push(value)
+            break;
+          }
+        }
+      }
+      let paramFilter = new ParameterizedFilter(filter)
+      paramFilter.values.splice(0, paramFilter.values.length, ...values)
+      filters.push(paramFilter)
+    }
+    this.name = json.name
+    this.filters = filters
+    return true
   }
 }
