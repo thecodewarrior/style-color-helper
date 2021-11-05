@@ -2,12 +2,20 @@ import {vec3, vec4} from "@/logic/math/vec";
 import {guid} from "@/utils";
 import VueStore from "vue-class-store";
 
-export type NumberControl = { name: string, type: "number", default: number, min?: number, max?: number, step?: number, integer?: boolean }
-export type SliderControl = { name: string, type: "slider", default: number, min: number, max: number, step?: number | 'any' } // number
-export type StepperControl = { name: string, type: "stepper", default: number, min?: number, max?: number} // number
-export type ColorControl = { name: string, type: "color", default: vec3 } // vec3
+export type NumberControl = {
+  name: string, type: "number", default: number,
+  min?: number, max?: number, step?: number, integer?: boolean
+}
+export type SliderControl = {
+  name: string, type: "slider", default: number,
+  min: number, max: number, snap: number | 'any', step: number,
+  precision: number, suffix?: string
+}
+export type ColorControl = {
+  name: string, type: "color", default: vec3
+}
 
-export type FilterControl = NumberControl | SliderControl | StepperControl | ColorControl
+export type FilterControl = NumberControl | SliderControl | ColorControl
 export type ControlValue = number | vec3 | vec4
 
 /**

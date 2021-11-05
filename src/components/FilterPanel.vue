@@ -37,10 +37,14 @@
                       :value="element.values[i]"
                       @input="element.values[i] = $event"
                   />
-                  <div v-if="parameter.type === 'color'" class="parameter-value" @click="editColor(element, i)">
+                  <div v-else-if="parameter.type === 'color'" class="parameter-value color-parameter" @click="editColor(element, i)">
                     <div :style="swatchStyle(element.values[i])">
                       {{swatchHex(element.values[i])}}
                     </div>
+                  </div>
+                  <slider-input v-else-if="parameter.type === 'slider'" :control="parameter" :value="element.values[i]" @input="element.values[i] = $event"/>
+                  <div v-else>
+                    &lt;&lt;{{parameter.type}}&gt;&gt;
                   </div>
                 </template>
               </div>
@@ -89,11 +93,13 @@ import NumberInput from "@/components/parameter/NumberInput.vue";
 import {vec3, vec4} from "@/logic/math/vec";
 import chroma, {Color} from "chroma-js";
 import ColorPanel from "@/components/ColorPanel.vue";
+import SliderInput from "@/components/parameter/SliderInput.vue";
 
 type PanelMode = 'filters' | 'add' | 'color'
 
 @Options({
   components: {
+    SliderInput,
     ColorPanel,
     NumberInput,
     ParameterEditor,
@@ -209,7 +215,7 @@ export default class FilterPanel extends Vue {
 }
 
 .body-scroll {
-  width: 310px; /* +10 for scrollbar */
+  width: 315px; /* +15 for scrollbar */
   flex-shrink: 1;
   overflow-y: scroll;
   -webkit-scrollbar-color: var(--main-highlight) transparent;
@@ -239,7 +245,7 @@ export default class FilterPanel extends Vue {
   grid-template-columns: auto auto 1fr auto;
   grid-template-areas:
       "handle show name remove"
-      "handle parameters parameters parameters";
+      "parameters parameters parameters parameters";
   align-items: center;
   gap: 5px 10px;
   margin-bottom: 15px;
@@ -267,6 +273,8 @@ export default class FilterPanel extends Vue {
   grid-area: parameters;
   display: grid;
   grid-template-columns: 100px 1fr;
+  grid-template-rows: 25px;
   align-items: center;
+  margin-left: 0.75em;
 }
 </style>

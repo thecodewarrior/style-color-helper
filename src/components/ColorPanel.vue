@@ -47,7 +47,7 @@
     </div>
     <div class="swatch" :style="[rawSwatchStyle, 'grid-area: original;']" v-tippy:original @click="copyOriginal">{{ model.rawColor.hex() }}</div>
     <tippy target="original" trigger="manual" :visible="originalCopyVisible">Copied</tippy>
-    <div class="swatch" :style="[filteredSwatchStyle, 'grid-area: filtered;']" v-tippy:filtered @click="copyFiltered">{{ model.computedColor.hex() }}</div>
+    <div class="swatch" :style="[filteredSwatchStyle, 'grid-area: filtered;']" v-tippy:filtered @click="copyFiltered">{{ filteredColor.hex() }}</div>
     <tippy target="filtered" trigger="manual" :visible="filteredCopyVisible">Copied</tippy>
   </div>
 </template>
@@ -59,6 +59,7 @@ import ColorPickerSpectrum from "@/components/ColorPickerSpectrum.vue";
 import chroma, {Color} from "chroma-js";
 import {PropType} from "vue";
 import Tippy from "@/lib/Tippy.vue";
+import {formatDecimal} from "@/utils";
 
 @Options({
   components: {
@@ -72,6 +73,7 @@ import Tippy from "@/lib/Tippy.vue";
 })
 export default class ColorPanel extends Vue {
   model!: Model
+  hideFilters!: boolean
   originalCopyVisible: boolean = false
   originalCopyTimeout: number = -1
   filteredCopyVisible: boolean = false
@@ -98,7 +100,7 @@ export default class ColorPanel extends Vue {
   }
 
   get exactHueDisplay(): string {
-    return (Math.round(this.model.hue * 100) / 100).toFixed(2)
+    return formatDecimal(this.model.hue, 2)
   }
 
   get saturationDisplay(): number {
@@ -106,7 +108,7 @@ export default class ColorPanel extends Vue {
   }
 
   get exactSaturationDisplay(): string {
-    return (Math.round(this.model.saturation * 100 * 100) / 100).toFixed(2)
+    return formatDecimal(this.model.saturation * 100, 2)
   }
 
   get lightnessDisplay(): number {
@@ -114,15 +116,19 @@ export default class ColorPanel extends Vue {
   }
 
   get exactLightnessDisplay(): string {
-    return (Math.round(this.model.lightness * 100 * 100) / 100).toFixed(2)
+    return formatDecimal(this.model.lightness * 100, 2)
   }
 
   get rawSwatchStyle() {
     return ColorPanel.swatchStyle(this.model.rawColor)
   }
 
+  get filteredColor() {
+    return this.hideFilters ? this.model.rawColor : this.model.computedColor
+  }
+
   get filteredSwatchStyle() {
-    return ColorPanel.swatchStyle(this.model.computedColor)
+    return ColorPanel.swatchStyle(this.filteredColor)
   }
 
   lastMainSize: {width: number, height: number} = {width: 0, height: 0}
@@ -174,7 +180,7 @@ export default class ColorPanel extends Vue {
   }
 
   copyFiltered() {
-    navigator.clipboard.writeText(this.model.computedColor.hex().substring(1).toUpperCase()).then(() => {
+    navigator.clipboard.writeText(this.filteredColor.hex().substring(1).toUpperCase()).then(() => {
       this.filteredCopyVisible = true
       clearTimeout(this.filteredCopyTimeout)
       this.filteredCopyTimeout = setTimeout(() => {

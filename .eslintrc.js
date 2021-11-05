@@ -23,6 +23,8 @@ module.exports = {
     '@typescript-eslint/no-inferrable-types': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-extra-semi': 'off', // dies when processing rust output
+    '@typescript-eslint/no-namespace': 'off',
+    'no-inner-declarations': 'off',
     'prefer-const': 'off',
     'no-empty': 'off',
   }

@@ -31,6 +31,8 @@ export default class Model {
     let rgb = this.rawColor.gl()
     let color = new vec3(rgb[0], rgb[1], rgb[2])
     for(let filter of this.filters) {
+      if(!filter.visible)
+        continue
       color = filter.apply(color)
       color = clamp(color, 0, 1)
     }

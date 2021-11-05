@@ -32,7 +32,12 @@ import {hsl2rgb, rgb2hsl} from "@/logic/math/hsl";
 //  - set saturation
 //  - set lightness
 
+export const filterMenu: string[] = [
+
+]
+
 export const filterTypes: Filter[] = [
+  // artistic filters
   {
     id: "posterize",
     name: "Posterize",
@@ -45,21 +50,6 @@ export const filterTypes: Filter[] = [
     },
     apply(color: vec3, factor: vec4) {
       return floor(color.times(factor.x)).div(factor.y);
-    }
-  },
-  {
-    id: "blend_normal",
-    name: "Blend Normal",
-    glsl: "color = $0.rgb * $0.a + color * (1. - $0.a);",
-    controls: [
-      {name: "Color", type: "color", default: new vec3(1, 0, 0)},
-      {name: "Opacity", type: "slider", default: 0.5, min: 0, max: 1, step: 'any'},
-    ],
-    vectorize(color: vec3, opacity: number) {
-      return [new vec4(color, opacity)]
-    },
-    apply(color: vec3, top: vec4) {
-      return top.rgb.times(top.a).plus(color.times(1 - top.a));
     }
   },
   {
@@ -84,8 +74,8 @@ hsl.z = clamp(x, 0., 1.);
 color = hsl2rgb(hsl);
 `,
     controls: [
-      {name: "Brightness", type: "slider", default: 0.0, min: -1, max: 1, step: 'any'},
-      {name: "Contrast", type: "slider", default: 0.0, min: -1, max: 1, step: 'any'},
+      {name: "Brightness", type: "slider", default: 0.0, min: -1, max: 1, snap: 'any', step: 0.05, precision: 2},
+      {name: "Contrast", type: "slider", default: 0.0, min: -1, max: 1, snap: 'any', step: 0.05, precision: 2},
     ],
     vectorize(brightness: number, contrast: number) {
       return [new vec4(brightness, contrast, 0, 0)]
@@ -111,7 +101,24 @@ color = hsl2rgb(hsl);
       hsl.z = x;
       return hsl2rgb(hsl)
     }
-  }
+  },
+
+  // blend modes
+  {
+    id: "blend_normal",
+    name: "Blend Normal",
+    glsl: "color = $0.rgb * $0.a + color * (1. - $0.a);",
+    controls: [
+      {name: "Color", type: "color", default: new vec3(1, 0, 0)},
+      {name: "Opacity", type: "slider", default: 50, min: 0, max: 100, snap: 1, step: 1, precision: 0},
+    ],
+    vectorize(color: vec3, opacity: number) {
+      return [new vec4(color, opacity / 100)]
+    },
+    apply(color: vec3, top: vec4) {
+      return top.rgb.times(top.a).plus(color.times(1 - top.a));
+    }
+  },
 ]
 
 let registry: Record<string, Filter> = {}

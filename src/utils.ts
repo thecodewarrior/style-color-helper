@@ -13,3 +13,12 @@ export function guid(): string {
   };
   return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
 }
+
+export function formatDecimal(value: number, decimals: number): string {
+  return roundDecimals(value, decimals).toFixed(decimals)
+}
+
+export function roundDecimals(value: number, decimals: number): number {
+  let factor = Math.pow(10, decimals)
+  return (Math.round(value * factor) / factor)
+}
