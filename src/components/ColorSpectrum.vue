@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <canvas ref="spectrum" :width="canvasWidth" :height="canvasHeight"></canvas>
-  </div>
+  <canvas ref="spectrum" :width="canvasWidth" :height="canvasHeight"></canvas>
 </template>
 
 <script lang="ts">

@@ -1,17 +1,17 @@
 <template>
   <div class="color-picker-spectrum" :style="cornerStyles.outer" @mousedown="startMouse" @touchstart="startTouch">
-    <spectrum
-        class="spectrum"
-        ref="spectrum"
-        :style="cornerStyles.inner"
-        :hue="hue"
-        :saturation="saturation"
-        :lightness="lightness"
-        :width="renderWidth"
-        :height="renderHeight"
-        :model="model"
-        :hide-filters="hideFilters"
-    ></spectrum>
+    <div class="spectrum" :style="cornerStyles.inner">
+      <spectrum
+          ref="spectrum"
+          :hue="hue"
+          :saturation="saturation"
+          :lightness="lightness"
+          :width="renderWidth"
+          :height="renderHeight"
+          :model="model"
+          :hide-filters="hideFilters"
+      ></spectrum>
+    </div>
     <div class="cursor-area" ref="cursorArea">
       <div class="cursor" :style="cursorStyle"></div>
     </div>
