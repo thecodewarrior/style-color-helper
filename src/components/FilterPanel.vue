@@ -271,8 +271,14 @@ export default class FilterPanel extends Vue {
   grid-area: parameters;
   display: grid;
   grid-template-columns: 100px 1fr;
-  grid-template-rows: 25px;
+  grid-auto-rows: 25px;
   align-items: center;
   margin-left: 0.75em;
+}
+
+.color-parameter > div {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 20px;
 }
 </style>
