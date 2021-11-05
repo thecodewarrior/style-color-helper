@@ -304,10 +304,25 @@ color = hsl2rgb(hsl);
     name: "XOR",
     defaultColor: new vec3(0.5, 0.25, 0.5),
     defaultAlpha: 100,
+    // implementing XOR without bitwise operations: https://stackoverflow.com/a/373457
     glsl: `
-    int ai = int(a * 255);
-    int bi = int(b * 255);
-    int oi = ai ^ bi;
+    int ai = int(a * 255.);
+    int bi = int(b * 255.);
+   
+    int oi = 0;
+    int fact = 0x80; // 1000 0000
+    for (int i = 8; i > 0; i--) {
+        if ((ai >= fact || bi >= fact) && (ai < fact || bi < fact))
+            oi += fact;
+
+        if (ai >= fact)
+            ai -= fact;
+        if (bi >= fact)
+            bi -= fact;
+
+        fact /= 2;
+    }
+    
     o = float(oi) / 255.;
     `,
     blend(a: number, b: number) {
@@ -326,7 +341,7 @@ color = hsl2rgb(hsl);
       {name: "Blend", type: "slider", default: 100, min: 0, max: 100, snap: 1, step: 1, precision: 0, suffix: '%'},
     ],
     vectorize(blend: number) {
-      return [new vec4(blend, 0, 0, 0)]
+      return [new vec4(blend / 100, 0, 0, 0)]
     },
     apply(color: vec3, $0: vec4) {
       return mix(color, new vec3(1).minus(color), $0.x)
