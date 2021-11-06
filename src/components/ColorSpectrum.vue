@@ -7,6 +7,7 @@ import {Options, Vue} from 'vue-class-component';
 import {PropType} from "vue";
 import SpectrumShader from "../logic/SpectrumShader";
 import Model from "@/logic/Model";
+import {Inject} from "vue-property-decorator";
 
 export type SpectrumComponent = number | "x" | "-x" | "y" | "-y"
 
@@ -18,7 +19,6 @@ export type SpectrumComponent = number | "x" | "-x" | "y" | "-y"
     lightness: {type: [String as PropType<SpectrumComponent>, Number as PropType<SpectrumComponent>], required: true},
     width: {type: Number, required: true},
     height: {type: Number, required: true},
-    model: {type: Object as PropType<Model>, required: true},
   },
   emits: [
     'update:h',
@@ -38,12 +38,14 @@ export type SpectrumComponent = number | "x" | "-x" | "y" | "-y"
   }
 })
 export default class ColorSpectrum extends Vue {
+  @Inject('model')
+  model!: Model
+
   width!: number
   height!: number
   hue!: SpectrumComponent
   saturation!: SpectrumComponent
   lightness!: SpectrumComponent
-  model!: Model
 
   context!: WebGLRenderingContext
   shader!: SpectrumShader

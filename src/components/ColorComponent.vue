@@ -5,7 +5,6 @@
         :hue="hueAxis" :saturation="saturationAxis" :lightness="lightnessAxis"
         v-model:x="componentValue"
         :render-width="300" :render-height="1"
-        :model="model"
     />
     <div class="component-value">{{valueDisplay}}</div>
     <tippy placement="right" target="_parent" :extra="{hideOnClick: false}">{{exactValueDisplay}}</tippy>
@@ -19,6 +18,7 @@ import ColorPickerSpectrum from "@/components/ColorPickerSpectrum.vue";
 import {PropType} from "vue";
 import Tippy from "@/lib/Tippy.vue";
 import {formatDecimal} from "@/utils";
+import {Inject} from "vue-property-decorator";
 
 @Options({
   components: {
@@ -26,12 +26,12 @@ import {formatDecimal} from "@/utils";
     ColorPickerSpectrum
   },
   props: {
-    model: {type: Object as PropType<Model>, required: true},
     label: {type: String, required: true},
     component: {type: String as PropType<'hue' | 'saturation' | 'lightness'>, required: true},
   }
 })
 export default class ColorComponent extends Vue {
+  @Inject('model')
   model!: Model
   component!: 'hue' | 'saturation' | 'lightness'
 

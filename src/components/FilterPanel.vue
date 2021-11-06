@@ -80,7 +80,7 @@
           <fa icon="arrow-left"/>
         </div>
       </div>
-      <color-panel class="color-picker" :model="subModel" :hide-filters="true"/>
+      <color-panel class="color-picker"/>
     </div>
 
     <div v-show="mode === 'save'" class="panel-mode save-panel">
@@ -130,7 +130,7 @@ import chroma, {Color} from "chroma-js";
 import ColorPanel from "@/components/ColorPanel.vue";
 import SliderInput from "@/components/parameter/SliderInput.vue";
 import Tippy from "@/lib/Tippy.vue";
-import {Watch} from "vue-property-decorator";
+import {Inject, Provide, Watch} from "vue-property-decorator";
 
 type PanelMode = 'filters' | 'add' | 'color' | 'save'
 
@@ -143,16 +143,19 @@ type PanelMode = 'filters' | 'add' | 'color' | 'save'
     draggable
   },
   props: {
-    model: {type: Object as PropType<Model>, required: true},
   },
   watch: {
     'subModel.rawColor': 'subColorChanged'
   }
 })
 export default class FilterPanel extends Vue {
+  @Inject('model')
   model!: Model
-  mode: PanelMode = 'filters'
+
+  @Provide('model')
   subModel: Model = new Model()
+
+  mode: PanelMode = 'filters'
   colorParameter: [ParameterizedFilter, number] | null = null
   savedNames: string[] = []
 

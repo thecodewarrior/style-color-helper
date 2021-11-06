@@ -8,7 +8,6 @@
           :lightness="lightness"
           :width="renderWidth"
           :height="renderHeight"
-          :model="model"
       ></spectrum>
     </div>
     <div class="cursor-area" ref="cursorArea">
@@ -25,6 +24,7 @@ import {DragDelegate, DragHandler} from "@/logic/DragDelegate";
 import ColorSpectrum, {SpectrumComponent} from "@/components/ColorSpectrum.vue";
 import {clamp} from "@/utils";
 import Model from "@/logic/Model";
+import {Inject} from "vue-property-decorator";
 
 type BorderSettings = {radius: number, width: number, transition: string}
 
@@ -40,7 +40,6 @@ type BorderSettings = {radius: number, width: number, transition: string}
     y: {type: Number, required: false, default: 0.5},
     renderWidth: {type: Number, required: true},
     renderHeight: {type: Number, required: true},
-    model: {type: Object as PropType<Model>, required: true},
     border: {type: Object as PropType<BorderSettings>, required: false},
   },
   emits: [
@@ -50,6 +49,9 @@ type BorderSettings = {radius: number, width: number, transition: string}
   watch: {}
 })
 export default class ColorPickerSpectrum extends Vue implements DragDelegate {
+  @Inject('model')
+  model!: Model
+
   x!: number
   y!: number
   hue!: string | number

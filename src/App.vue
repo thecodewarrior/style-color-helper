@@ -1,36 +1,34 @@
 <template>
   <div class="app">
     <color-component
-        :model="model" component="hue" label="H" :hide-filters="model.hideFilters"
+        component="hue" label="H"
         style="grid-area: hue; z-index: 10;"
     />
     <color-component
-        :model="model" component="saturation" label="S" :hide-filters="model.hideFilters"
+        component="saturation" label="S"
         style="grid-area: sat; z-index: 10;"
     />
     <color-component
-        :model="model" component="lightness" label="L" :hide-filters="model.hideFilters"
+        component="lightness" label="L"
         style="grid-area: lit; z-index: 10;"
     />
     <color-picker-spectrum
         class="main-spectrum"
-        hue="x" :saturation="model.saturation" lightness="-y"
-        v-model:x="model.normalHue" v-model:y="model.lightness"
+        hue="x" :saturation="rootModel.saturation" lightness="-y"
+        v-model:x="rootModel.normalHue" v-model:y="rootModel.lightness"
         :render-width="300" :render-height="100"
-        :model="model"
-        :hide-filters="model.hideFilters"
         :border="{radius: 20, width: 5, transition: '0.5s'}"
         style="grid-area: main; z-index: 12;"
     />
-    <color-swatch class="small-swatch" style="grid-area: orig; z-index: 8;" :color="model.rawColor"/>
-    <color-swatch class="small-swatch" style="grid-area: filt; z-index: 8;" :color="model.filteredColor"/>
-    <color-edit-swatch class="main-swatch" style="grid-area: orig; z-index: 10;" v-model:color="model.rawColor"/>
-    <color-swatch class="main-swatch" style="grid-area: filt; z-index: 10;" :color="model.filteredColor"/>
+    <color-swatch class="small-swatch" style="grid-area: orig; z-index: 8;" :color="rootModel.rawColor"/>
+    <color-swatch class="small-swatch" style="grid-area: filt; z-index: 8;" :color="rootModel.filteredColor"/>
+    <color-edit-swatch class="main-swatch" style="grid-area: orig; z-index: 10;" v-model:color="rootModel.rawColor"/>
+    <color-swatch class="main-swatch" style="grid-area: filt; z-index: 10;" :color="rootModel.filteredColor"/>
 
     <div class="sticky-top-mask" style="z-index: 11;"/> <!-- sticks up above the main spectrum-->
     <div class="sticky-bottom-mask" style="z-index: 5;"/> <!-- covers the space between the spectrum and separator -->
     <div class="panel-separator" style="z-index: 10;"></div>
-    <filter-panel class="side-panel" :model="model"/>
+    <filter-panel class="side-panel"/>
   </div>
 </template>
 
@@ -45,25 +43,27 @@ import ColorPickerSpectrum from "@/components/ColorPickerSpectrum.vue";
 import ColorComponent from "@/components/ColorComponent.vue";
 import ColorEditSwatch from "@/components/ColorEditSwatch.vue";
 import ColorSwatch from "@/components/ColorSwatch.vue";
+import {Provide} from "vue-property-decorator";
 
 @Options({
   components: {ColorSwatch, ColorEditSwatch, ColorComponent, ColorPickerSpectrum, FilterPanel, ColorPanel},
   props: {}
 })
 export default class App extends Vue {
-  model: Model = new Model()
+  @Provide('model')
+  rootModel: Model = new Model()
 
   mounted() {
     let shareData = new URL(location.href).searchParams.get('share')
     if (shareData) {
       try {
-        this.model.decode(shareData)
+        this.rootModel.decode(shareData)
         history.replaceState(null, '', '.');
       } catch(e) {
         console.error(e)
       }
     } else {
-      this.model.addFilter(new ParameterizedFilter(filterRegistry["posterize"])).values[0] = 3
+      this.rootModel.addFilter(new ParameterizedFilter(filterRegistry["posterize"])).values[0] = 3
     }
   }
 }

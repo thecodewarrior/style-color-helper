@@ -1,15 +1,15 @@
 <template>
   <div class="color-panel">
     <color-component
-        :model="model" component="hue" label="H"
+        component="hue" label="H"
         style="grid-area: hue;"
     />
     <color-component
-        :model="model" component="saturation" label="S"
+        component="saturation" label="S"
         style="grid-area: saturation;"
     />
     <color-component
-        :model="model" component="lightness" label="L"
+        component="lightness" label="L"
         style="grid-area: lightness;"
     />
     <color-picker-spectrum
@@ -17,7 +17,6 @@
         hue="x" :saturation="model.saturation" lightness="-y"
         v-model:x="model.normalHue" v-model:y="model.lightness"
         :render-width="300" :render-height="100"
-        :model="model"
         :border="{radius: 20, width: 5, transition: '0.5s'}"
         style="grid-area: main;"
     />
@@ -34,7 +33,7 @@ import chroma, {Color} from "chroma-js";
 import {PropType} from "vue";
 import Tippy from "@/lib/Tippy.vue";
 import {formatDecimal} from "@/utils";
-import {Watch} from "vue-property-decorator";
+import {Inject, Watch} from "vue-property-decorator";
 import ColorComponent from "@/components/ColorComponent.vue";
 import ColorSwatch from "@/components/ColorSwatch.vue";
 import ColorEditSwatch from "@/components/ColorEditSwatch.vue";
@@ -48,11 +47,11 @@ import ColorEditSwatch from "@/components/ColorEditSwatch.vue";
     ColorPickerSpectrum
   },
   props: {
-    model: {type: Object as PropType<Model>, required: true},
     hideMainSpectrum: {type: Boolean, default: false},
   }
 })
 export default class ColorPanel extends Vue {
+  @Inject('model')
   model!: Model
 }
 </script>
