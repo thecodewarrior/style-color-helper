@@ -19,7 +19,6 @@ export type SpectrumComponent = number | "x" | "-x" | "y" | "-y"
     width: {type: Number, required: true},
     height: {type: Number, required: true},
     model: {type: Object as PropType<Model>, required: true},
-    hideFilters: {type: Boolean, default: false},
   },
   emits: [
     'update:h',
@@ -32,7 +31,7 @@ export type SpectrumComponent = number | "x" | "-x" | "y" | "-y"
     'lightness': 'markDirty',
     'width': 'markDirty',
     'height': 'markDirty',
-    'hideFilters': 'markDirty',
+    'model.hideFilters': 'markDirty',
     'filterIds': {handler: 'filterIdsChanged', deep: true},
     'filterVisibilities': {handler: 'markDirty', deep: true},
     'filterParameters': {handler: 'markDirty', deep: true},
@@ -45,7 +44,6 @@ export default class ColorSpectrum extends Vue {
   saturation!: SpectrumComponent
   lightness!: SpectrumComponent
   model!: Model
-  hideFilters!: boolean
 
   context!: WebGLRenderingContext
   shader!: SpectrumShader
@@ -197,7 +195,7 @@ export default class ColorSpectrum extends Vue {
   }
 
   updateCanvas() {
-    let shader = this.hideFilters ? this.nopShader : this.shader
+    let shader = this.model.hideFilters ? this.nopShader : this.shader
 
     shader.rebuildIfNeeded()
     let gl = this.context
@@ -248,7 +246,7 @@ export default class ColorSpectrum extends Vue {
 
     this.uploadComputedColors()
 
-    if(this.hideFilters) {
+    if(this.model.hideFilters) {
       gl.useProgram(shader.program);
     } else {
       gl.useProgram(shader.program);

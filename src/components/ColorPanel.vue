@@ -1,15 +1,15 @@
 <template>
   <div class="color-panel">
     <color-component
-        :model="model" component="hue" label="H" :hide-filters="hideFilters"
+        :model="model" component="hue" label="H"
         style="grid-area: hue;"
     />
     <color-component
-        :model="model" component="saturation" label="S" :hide-filters="hideFilters"
+        :model="model" component="saturation" label="S"
         style="grid-area: saturation;"
     />
     <color-component
-        :model="model" component="lightness" label="L" :hide-filters="hideFilters"
+        :model="model" component="lightness" label="L"
         style="grid-area: lightness;"
     />
     <color-picker-spectrum
@@ -18,12 +18,11 @@
         v-model:x="model.normalHue" v-model:y="model.lightness"
         :render-width="300" :render-height="100"
         :model="model"
-        :hide-filters="hideFilters"
         :border="{radius: 20, width: 5, transition: '0.5s'}"
         style="grid-area: main;"
     />
     <color-edit-swatch style="grid-area: original;" v-model:color="model.rawColor"/>
-    <color-swatch style="grid-area: filtered;" :color="filteredColor"/>
+    <color-swatch style="grid-area: filtered;" :color="model.filteredColor"/>
   </div>
 </template>
 
@@ -50,17 +49,11 @@ import ColorEditSwatch from "@/components/ColorEditSwatch.vue";
   },
   props: {
     model: {type: Object as PropType<Model>, required: true},
-    hideFilters: {type: Boolean, default: false},
     hideMainSpectrum: {type: Boolean, default: false},
   }
 })
 export default class ColorPanel extends Vue {
   model!: Model
-  hideFilters!: boolean
-
-  get filteredColor() {
-    return this.hideFilters ? this.model.rawColor : this.model.computedColor
-  }
 }
 </script>
 

@@ -13,6 +13,7 @@ export default class Model {
   public hue = 30
   public saturation = 1
   public lightness = 0.75
+  public hideFilters: boolean = false
 
   get normalHue(): number {
     return this.hue / 360
@@ -47,6 +48,10 @@ export default class Model {
       color = clamp(color, 0, 1)
     }
     return chroma.gl(color.r, color.g, color.b)
+  }
+
+  get filteredColor(): Color {
+    return this.hideFilters ? this.rawColor : this.computedColor
   }
 
   get encoded(): string {

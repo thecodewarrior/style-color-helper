@@ -9,7 +9,6 @@
           :width="renderWidth"
           :height="renderHeight"
           :model="model"
-          :hide-filters="hideFilters"
       ></spectrum>
     </div>
     <div class="cursor-area" ref="cursorArea">
@@ -42,7 +41,6 @@ type BorderSettings = {radius: number, width: number, transition: string}
     renderWidth: {type: Number, required: true},
     renderHeight: {type: Number, required: true},
     model: {type: Object as PropType<Model>, required: true},
-    hideFilters: {type: Boolean, default: false},
     border: {type: Object as PropType<BorderSettings>, required: false},
   },
   emits: [

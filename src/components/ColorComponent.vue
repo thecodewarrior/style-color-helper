@@ -6,7 +6,6 @@
         v-model:x="componentValue"
         :render-width="300" :render-height="1"
         :model="model"
-        :hide-filters="hideFilters"
     />
     <div class="component-value">{{valueDisplay}}</div>
     <tippy placement="right" target="_parent" :extra="{hideOnClick: false}">{{exactValueDisplay}}</tippy>
@@ -28,7 +27,6 @@ import {formatDecimal} from "@/utils";
   },
   props: {
     model: {type: Object as PropType<Model>, required: true},
-    hideFilters: {type: Boolean, default: false},
     label: {type: String, required: true},
     component: {type: String as PropType<'hue' | 'saturation' | 'lightness'>, required: true},
   }

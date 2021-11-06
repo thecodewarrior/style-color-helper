@@ -5,8 +5,8 @@
         <div class="icon-button" style="grid-area: L1;" @click="mode = 'add'">
           <fa icon="plus"/>
         </div>
-        <div class="icon-button" style="grid-area: L2;" @click="$emit('update:hideFilters', !hideFilters)">
-          <fa :icon="hideFilters ? 'eye-slash' : 'eye'"/>
+        <div class="icon-button" style="grid-area: L2;" @click="model.hideFilters = !model.hideFilters">
+          <fa :icon="model.hideFilters ? 'eye-slash' : 'eye'"/>
         </div>
         <div class="name" style="grid-area: name;">{{model.name}}</div>
         <div class="icon-button" style="grid-area: R1;" @click="mode = 'save'">
@@ -144,11 +144,7 @@ type PanelMode = 'filters' | 'add' | 'color' | 'save'
   },
   props: {
     model: {type: Object as PropType<Model>, required: true},
-    hideFilters: {type: Boolean, default: false},
   },
-  emits: [
-    'update:hideFilters'
-  ],
   watch: {
     'subModel.rawColor': 'subColorChanged'
   }
