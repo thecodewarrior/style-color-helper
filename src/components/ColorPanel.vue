@@ -51,7 +51,7 @@ import ColorEditSwatch from "@/components/ColorEditSwatch.vue";
   }
 })
 export default class ColorPanel extends Vue {
-  @Inject('model')
+  @Inject({from: 'model'})
   model!: Model
 }
 </script>

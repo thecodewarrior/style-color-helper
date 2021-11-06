@@ -49,7 +49,7 @@ type BorderSettings = {radius: number, width: number, transition: string}
   watch: {}
 })
 export default class ColorPickerSpectrum extends Vue implements DragDelegate {
-  @Inject('model')
+  @Inject({from: 'model'})
   model!: Model
 
   x!: number

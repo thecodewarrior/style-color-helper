@@ -31,7 +31,7 @@ import {Inject} from "vue-property-decorator";
   }
 })
 export default class ColorComponent extends Vue {
-  @Inject('model')
+  @Inject({from: 'model'})
   model!: Model
   component!: 'hue' | 'saturation' | 'lightness'
 

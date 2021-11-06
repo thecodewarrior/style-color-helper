@@ -38,7 +38,7 @@ export type SpectrumComponent = number | "x" | "-x" | "y" | "-y"
   }
 })
 export default class ColorSpectrum extends Vue {
-  @Inject('model')
+  @Inject({from: 'model'})
   model!: Model
 
   width!: number

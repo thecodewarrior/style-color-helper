@@ -27,8 +27,14 @@
 
     <div class="sticky-top-mask" style="z-index: 11;"/> <!-- sticks up above the main spectrum-->
     <div class="sticky-bottom-mask" style="z-index: 5;"/> <!-- covers the space between the spectrum and separator -->
-    <div class="panel-separator" style="z-index: 10;"></div>
-    <filter-panel class="side-panel"/>
+    <div class="panel-separator" style="z-index: 7;">
+      <div class="separator-line-top" v-if="hasHistory"></div>
+      <div v-if="hasHistory" class="back-button" @click="goBack">
+        <fa icon="arrow-left"/>
+      </div>
+      <div class="separator-line"></div>
+    </div>
+    <router-view class="side-panel"/>
   </div>
 </template>
 
@@ -38,7 +44,6 @@ import {ParameterizedFilter} from "@/logic/Filter";
 import {filterRegistry} from "@/logic/Filters";
 import Model from "@/logic/Model";
 import ColorPanel from "@/components/ColorPanel.vue";
-import FilterPanel from "@/components/FilterPanel.vue";
 import ColorPickerSpectrum from "@/components/ColorPickerSpectrum.vue";
 import ColorComponent from "@/components/ColorComponent.vue";
 import ColorEditSwatch from "@/components/ColorEditSwatch.vue";
@@ -46,7 +51,7 @@ import ColorSwatch from "@/components/ColorSwatch.vue";
 import {Provide} from "vue-property-decorator";
 
 @Options({
-  components: {ColorSwatch, ColorEditSwatch, ColorComponent, ColorPickerSpectrum, FilterPanel, ColorPanel},
+  components: {ColorSwatch, ColorEditSwatch, ColorComponent, ColorPickerSpectrum, ColorPanel},
   props: {}
 })
 export default class App extends Vue {
@@ -65,6 +70,14 @@ export default class App extends Vue {
     } else {
       this.rootModel.addFilter(new ParameterizedFilter(filterRegistry["posterize"])).values[0] = 3
     }
+  }
+
+  get hasHistory() {
+    return this.$route.meta.back
+  }
+
+  goBack() {
+    this.$router.back()
   }
 }
 </script>
@@ -131,13 +144,38 @@ body {
 
 .panel-separator {
   grid-area: sep;
+  justify-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.separator-line {
   width: 5px;
 
   background-color: var(--main-highlight);
   border-radius: 3px;
 
   margin: -10px 0;
-  justify-self: center;
+  flex-grow: 1;
+}
+
+.separator-line-top {
+  width: 5px;
+  height: 10px;
+
+  background-color: var(--main-highlight);
+  border-radius: 3px;
+
+  margin-top: -10px;
+}
+
+.back-button {
+  font-size: 1.2em;
+  width: 1.25em;
+  text-align: center;
+  cursor: pointer;
+  margin-bottom: 10px;
 }
 
 .side-panel {
@@ -196,17 +234,44 @@ body {
 
     align-self: center;
     border-radius: 20px;
+    pointer-events: none;
   }
 
   .panel-separator {
     position: sticky;
-    top: 135px;
+    top: 123px;
     width: auto;
-    height: 5px;
-    margin: 12px -10px;
 
     justify-self: stretch;
-    align-self: center;
+    align-self: stretch;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .separator-line {
+    width: auto;
+    height: 5px;
+    margin: 0 -10px;
+  }
+
+  .separator-line-top {
+    width: 8px;
+    height: 5px;
+
+    background-color: var(--main-highlight);
+    border-radius: 3px;
+
+    margin: 0 2px 0 -10px;
+  }
+
+  .back-button {
+    cursor: pointer;
+    margin-bottom: 0;
+    margin-right: 12px;
+    background: var(--main-background);
+    border-radius: 99px;
   }
 
   .sticky-top-mask {
@@ -224,7 +289,7 @@ body {
     position: sticky;
     top: -20px;
     margin: 0 -10px 12px;
-    height: 155px;
+    height: 160px;
     background: var(--main-background);
     align-self: end;
     grid-area: sep;
