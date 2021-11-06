@@ -54,6 +54,9 @@ type BorderSettings = {radius: number, width: number, transition: string}
 export default class ColorPickerSpectrum extends Vue implements DragDelegate {
   x!: number
   y!: number
+  hue!: string | number
+  saturation!: string | number
+  lightness!: string | number
   border?: BorderSettings
 
   get cursorStyle() {
