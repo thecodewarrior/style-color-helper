@@ -1,5 +1,5 @@
 import VueStore from "vue-class-store";
-import {ControlValue, FilterControl, ParameterizedFilter} from "@/logic/Filter";
+import {ControlValue, ParameterizedFilter} from "@/logic/Filter";
 import chroma, {Color} from "chroma-js";
 import {vec3, vec4} from "@/logic/math/vec";
 import {clamp} from "@/logic/math/ops";
@@ -49,41 +49,116 @@ export default class Model {
     return chroma.gl(color.r, color.g, color.b)
   }
 
-  saveFilters(): object {
-    let filters = this.filters.map((filter) => {
-      let args: Record<string, any> = {}
+  get encoded(): string {
+    let text = ''
+    for(let filter of this.filters) {
+      text += filter.filter.id
+      text += ':'
       for(let i = 0; i < filter.parameters.length; i++) {
+        if(i != 0) {
+          text += ','
+        }
         let parameter = filter.parameters[i]
         let value = filter.values[i]
         switch(parameter.type) {
           case "color": {
             let v = value as vec4
             let color = chroma.gl(v.r, v.g, v.b, v.a)
-            args[parameter.id] = color.hex("rgb")
+            text += color.hex("rgb").substring(1)
             break;
           }
           case "number": {
             let v = value as number
-            args[parameter.id] = roundDecimals(v, parameter.precision)
+            text += roundDecimals(v, parameter.precision)
             break;
           }
           case "slider": {
             let v = value as number
-            args[parameter.id] = roundDecimals(v, parameter.precision)
+            text += roundDecimals(v, parameter.precision)
+            break;
+          }
+          // future syntax for vectors, if I need them, will be slash-separated `0.4/4.8/7`
+        }
+      }
+      text += ';'
+    }
+    text += '~'
+    text += this.name
+    return text
+  }
+
+  decode(text: string): boolean {
+    if(text.startsWith('{')) {
+      return this.loadFilters(JSON.parse(text))
+    }
+    if(text.startsWith('~')) {
+      this.filters.splice(0, this.filters.length)
+      this.name = text.substring(1)
+      return true
+    }
+
+    let [filtersText, name] = text.split(';~', 2)
+    if(name === undefined) {
+      return false
+    }
+
+    let filters: ParameterizedFilter[] = []
+    let filterEntries = filtersText.split(';')
+    let filterRegex = /^([a-z_]+):(.*)$/
+    for(let filterEntry of filterEntries) {
+      let match = filterRegex.exec(filterEntry)
+      if(!match) {
+        return false
+      }
+      let [, id, parameterText] = match
+
+      let filter = filterRegistry[id]
+      if(!filter) {
+        return false
+      }
+
+      let parameters = parameterText.split(',')
+      if(parameters.length !== filter.controls.length) {
+        return false
+      }
+
+      let values: ControlValue[] = []
+      for(let i = 0; i < filter.controls.length; i++) {
+        let control = filter.controls[i]
+        let value = parameters[i]
+
+        switch(control.type) {
+          case "color": {
+            if (!chroma.valid(value)) return false
+            let color = chroma(value)
+            values.push(new vec4(...color.gl()))
+            break;
+          }
+          case "number": {
+            let number = parseFloat(value)
+            if(isNaN(number)) {
+              return false
+            }
+            values.push(number)
+            break;
+          }
+          case "slider": {
+            let number = parseFloat(value)
+            if(isNaN(number)) {
+              return false
+            }
+            values.push(number)
             break;
           }
         }
       }
-      return {
-        id: filter.filter.id,
-        args
-      }
-    })
-
-    return {
-      name: this.name,
-      filters
+      let paramFilter = new ParameterizedFilter(filter)
+      paramFilter.values.splice(0, paramFilter.values.length, ...values)
+      filters.push(paramFilter)
     }
+    this.name = name
+    this.filters = filters
+    return true
   }
 
   loadFilters(json: Record<string, any>): boolean {

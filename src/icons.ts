@@ -5,7 +5,7 @@ import {
   faEyeSlash,
   faFolder, faFolderOpen,
   faGripLines,
-  faICursor,
+  faICursor, faLink,
   faMinus,
   faMinusCircle,
   faPlus,
@@ -30,5 +30,6 @@ export function initIcons() {
       faFolderOpen,
       faSave,
       faTrashAlt,
+      faLink
   )
 }

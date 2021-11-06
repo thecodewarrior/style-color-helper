@@ -14,7 +14,8 @@
     "baseUrl": ".",
     "outDir": "build",
     "types": [
-      "webpack-env"
+      "webpack-env",
+      "@types/*"
     ],
     "paths": {
       "@/*": [

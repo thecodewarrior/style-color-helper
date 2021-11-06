@@ -91,8 +91,12 @@
         <div class="name" style="grid-area: name;">{{model.name}}</div>
       </div>
       <div class="save-top-controls">
-        <input type="text" ref="clipboardField" v-tippy:paste @focus="clipboardFieldFocus" @change="loadClipboard($event.target.value)"/>
+        <input type="text" ref="clipboardField" v-tippy:paste :value="model.encoded" @focus="clipboardFieldFocus" @change="loadClipboard($event.target.value)"/>
         <tippy target="paste" trigger="manual" :visible="pasteVisible" placement="top">{{ pasteStatus }}</tippy>
+        <div class="icon-button" v-tippy:permalink @click="copyPermalink">
+          <fa icon="link"/>
+        </div>
+        <tippy target="permalink" trigger="manual" :visible="permalinkVisible" placement="left">Copied</tippy>
       </div>
       <div class="body-scroll">
         <div class="saved-list">
@@ -159,6 +163,8 @@ export default class FilterPanel extends Vue {
   pasteVisible: boolean = false
   pasteTimeout: number = -1
   pasteStatus: string = "Pasted"
+  permalinkVisible: boolean = false
+  permalinkTimeout: number = -1
 
   get clipboardField(): HTMLInputElement {
     return this.$refs['clipboardField'] as HTMLInputElement
@@ -215,7 +221,6 @@ export default class FilterPanel extends Vue {
   @Watch('mode')
   modeChanged() {
     if(this.mode === 'save') {
-      this.clipboardField.value = JSON.stringify(this.model.saveFilters())
       this.loadNames()
     }
   }
@@ -225,7 +230,7 @@ export default class FilterPanel extends Vue {
   }
 
   loadClipboard(text: string) {
-    let success = this.model.loadFilters(JSON.parse(text))
+    let success = this.model.decode(text)
     this.pasteStatus = success ? 'Loaded' : 'Invalid'
     this.pasteVisible = true
     clearTimeout(this.pasteTimeout)
@@ -236,7 +241,9 @@ export default class FilterPanel extends Vue {
 
   loadSaved(name: string) {
     let local = JSON.parse(localStorage.getItem("saved") ?? "{}")
-    this.model.loadFilters(local[name])
+    this.model.decode(local[name])
+    if(local[name].startsWith('{'))
+      this.saveLocal()
     this.mode = 'filters'
   }
 
@@ -254,9 +261,22 @@ export default class FilterPanel extends Vue {
 
   saveLocal() {
     let local = JSON.parse(localStorage.getItem("saved") ?? "{}")
-    local[this.model.name] = this.model.saveFilters()
+    local[this.model.name] = this.model.encoded
     localStorage.setItem("saved", JSON.stringify(local))
     this.loadNames()
+  }
+
+  copyPermalink() {
+    let url = new URL(location.href)
+    // I directly set the search here because searchParams' escaping is overzealous
+    url.search = '?share=' + encodeURI(this.model.encoded)
+    navigator.clipboard.writeText(url.href).then(() => {
+      this.permalinkVisible = true
+      clearTimeout(this.permalinkTimeout)
+      this.permalinkTimeout = setTimeout(() => {
+        this.permalinkVisible = false
+      }, 750)
+    })
   }
 }
 </script>
@@ -407,5 +427,6 @@ input[type="text"] {
   grid-template-columns: auto 1fr auto;
   gap: 5px 10px;
   align-items: center;
+  margin: 10px 0;
 }
 </style>

@@ -42,7 +42,6 @@ import Model from "@/logic/Model";
 import ColorPanel from "@/components/ColorPanel.vue";
 import FilterPanel from "@/components/FilterPanel.vue";
 import ColorPickerSpectrum from "@/components/ColorPickerSpectrum.vue";
-import {swatchStyle} from "@/utils";
 import ColorComponent from "@/components/ColorComponent.vue";
 import ColorEditSwatch from "@/components/ColorEditSwatch.vue";
 import ColorSwatch from "@/components/ColorSwatch.vue";
@@ -54,8 +53,19 @@ import ColorSwatch from "@/components/ColorSwatch.vue";
 export default class App extends Vue {
   model: Model = new Model()
   hideFilters: boolean = false
+
   mounted() {
-    this.model.addFilter(new ParameterizedFilter(filterRegistry["posterize"])).values[0] = 3
+    let shareData = new URL(location.href).searchParams.get('share')
+    if (shareData) {
+      try {
+        this.model.decode(shareData)
+        history.replaceState(null, '', '.');
+      } catch(e) {
+        console.error(e)
+      }
+    } else {
+      this.model.addFilter(new ParameterizedFilter(filterRegistry["posterize"])).values[0] = 3
+    }
   }
 
   get filteredColor() {
