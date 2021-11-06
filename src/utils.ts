@@ -1,3 +1,4 @@
+import chroma, {Color} from "chroma-js";
 
 export function clamp(min: number, value: number, max: number): number {
   if(value < min)
@@ -21,4 +22,13 @@ export function formatDecimal(value: number, decimals: number): string {
 export function roundDecimals(value: number, decimals: number): number {
   let factor = Math.pow(10, decimals)
   return (Math.round(value * factor) / factor)
+}
+
+export function swatchStyle(color: Color): object {
+  let whiteContrast = chroma.contrast('white', color)
+  let blackContrast = chroma.contrast('black', color)
+  return {
+    'color': blackContrast > whiteContrast ? 'black' : 'white',
+    'background-color': color.hex()
+  }
 }

@@ -29,6 +29,7 @@ import Model from "@/logic/Model";
 import ColorPanel from "@/components/ColorPanel.vue";
 import FilterPanel from "@/components/FilterPanel.vue";
 import ColorPickerSpectrum from "@/components/ColorPickerSpectrum.vue";
+import {swatchStyle} from "@/utils";
 
 @Options({
   components: {ColorPickerSpectrum, FilterPanel, ColorPanel},
@@ -58,7 +59,7 @@ export default class App extends Vue {
   }
 
   get rawSwatchStyle() {
-    return ColorPanel.swatchStyle(this.model.rawColor)
+    return swatchStyle(this.model.rawColor)
   }
 
   get filteredColor() {
@@ -66,7 +67,7 @@ export default class App extends Vue {
   }
 
   get filteredSwatchStyle() {
-    return ColorPanel.swatchStyle(this.filteredColor)
+    return swatchStyle(this.filteredColor)
   }
 }
 </script>

@@ -58,9 +58,29 @@ export default class ColorPickerSpectrum extends Vue implements DragDelegate {
 
   get cursorStyle() {
     return {
-      left: this.x * 100 + '%',
-      top: this.y * 100 + '%',
+      left: this.visualX * 100 + '%',
+      top: this.visualY * 100 + '%',
     }
+  }
+
+  get visualX() {
+    return this.flipX(this.x)
+  }
+  get visualY() {
+    return this.flipY(this.y)
+  }
+
+  flipX(value: number) {
+    if([this.hue, this.saturation, this.lightness].indexOf('-x') != -1)
+      return 1 - value
+    else
+      return value
+  }
+  flipY(value: number) {
+    if([this.hue, this.saturation, this.lightness].indexOf('-y') != -1)
+      return 1 - value
+    else
+      return value
   }
 
   fractionalDrag: boolean = true
@@ -78,6 +98,7 @@ export default class ColorPickerSpectrum extends Vue implements DragDelegate {
   }
 
   touchEnd(): void {
+    // nop because iOS will often snap the position back to the start in the touch end event
   }
 
   dragTouch(x: number, y: number) {
@@ -85,8 +106,8 @@ export default class ColorPickerSpectrum extends Vue implements DragDelegate {
   }
 
   drag(x: number, y: number) {
-    this.$emit('update:x', clamp(0, x, 1))
-    this.$emit('update:y', clamp(0, y, 1))
+    this.$emit('update:x', clamp(0, this.flipX(x), 1))
+    this.$emit('update:y', clamp(0, this.flipY(y), 1))
   }
 
   startMouse(e: MouseEvent) {
@@ -114,11 +135,14 @@ export default class ColorPickerSpectrum extends Vue implements DragDelegate {
     if(!this.border)
       return {}
 
+    this.visualX
+    this.visualY
+
     let {width, height} = this.spectrumSize()
     if(width === 0 || height === 0) return {}
 
-    let x = this.x * width
-    let y = this.y * height
+    let x = this.visualX * width
+    let y = this.visualY * height
 
     let pad = this.border.radius + 5;
     let left = x < pad;

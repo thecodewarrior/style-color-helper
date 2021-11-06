@@ -14,6 +14,13 @@ export default class Model {
   public saturation = 1
   public lightness = 0.75
 
+  get normalHue(): number {
+    return this.hue / 360
+  }
+  set normalHue(value: number) {
+    this.hue = value * 360
+  }
+
   addFilter(filter: ParameterizedFilter): ParameterizedFilter {
     this.filters.push(filter)
     return this.filters[this.filters.length - 1]

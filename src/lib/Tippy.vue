@@ -191,7 +191,9 @@ export default class Tippy extends Vue {
         this.tip = null;
       }
       let target: Element | null = null
-      if (this.deepSearch) {
+      if (this.target === "_parent") {
+        target = this.$el.parentElement
+      } else if (this.deepSearch) {
         target = this.$el.parentElement.querySelector(`[data-tippy-target="${this.target}"]`);
       } else {
         for (const sibling of this.$el.parentElement.children) {
