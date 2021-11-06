@@ -68,7 +68,7 @@ export default class ColorPanel extends Vue {
 .color-panel {
   display: grid;
   grid-template-rows: 35px 35px 35px 1fr auto;
-  grid-template-columns: 150px 150px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-areas:
       "hue hue"
       "saturation saturation"
