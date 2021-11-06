@@ -118,37 +118,39 @@ export default class ColorPickerSpectrum extends Vue implements DragDelegate {
     DragHandler.startTouch(this, e)
   }
 
-  lastSpectrumSize: {width: number, height: number} = {width: 0, height: 0}
+  spectrumSize: {width: number, height: number} = {width: 0, height: 0}
 
-  spectrumSize(): {width: number, height: number} {
+  updateSpectrumSize() {
     let main = this.$refs.spectrum
     if(main) {
       let {width, height} = ((main as Vue).$el as HTMLElement).getBoundingClientRect();
       if(width !== 0 && height !== 0) {
-        this.lastSpectrumSize = {width, height}
+        this.spectrumSize = {width, height}
       }
     }
-    return this.lastSpectrumSize
   }
 
   get cornerStyles() {
     if(!this.border)
       return {}
 
-    this.visualX
-    this.visualY
-
-    let {width, height} = this.spectrumSize()
-    if(width === 0 || height === 0) return {}
-
+    this.updateSpectrumSize()
+    let {width, height} = this.spectrumSize
     let x = this.visualX * width
     let y = this.visualY * height
 
-    let pad = this.border.radius + 5;
-    let left = x < pad;
-    let right = width - x < pad;
-    let top = y < pad;
-    let bottom = height - y < pad;
+    let left = false
+    let right = false
+    let top = false
+    let bottom = false
+
+    if(width !== 0 && height !== 0) {
+      let pad = this.border.radius + 5;
+      left = x < pad;
+      right = width - x < pad;
+      top = y < pad;
+      bottom = height - y < pad;
+    }
 
     let outerRadius = this.border.radius + 'px'
     let innerRadius = (this.border.radius - this.border.width) + 'px'
