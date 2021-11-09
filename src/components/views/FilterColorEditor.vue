@@ -46,7 +46,7 @@ export default class FilterColorEditor extends Vue {
     return [this.filterIndex, this.parameterIndex]
   }
 
-  @Watch('params')
+  @Watch('params', {immediate: true})
   colorChanged() {
     let rgb = this.controlValue as vec3
     this.subModel.rawColor = chroma.gl(rgb.r, rgb.g, rgb.b)
