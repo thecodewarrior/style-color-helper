@@ -65,6 +65,6 @@ export default class FilterColorEditor extends Vue {
   justify-items: stretch;
   align-items: stretch;
   width: 100%;
-  height: 100%;
+  height: 300px;
 }
 </style>
